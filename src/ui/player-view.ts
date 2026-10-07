@@ -1,9 +1,24 @@
 import { createPlayer, parseMoves } from '../cube/adapter';
 import type { CubePlayer, PlayerState } from '../cube/adapter';
+import { el } from './dom';
 
 export interface PlayerViewOptions {
   setup: string;
   alg: string;
+  /** Wird bei jeder Zustandsaenderung aufgerufen (auch einmal initial und nach dem Laden). */
+  onState?: (state: PlayerState) => void;
+}
+
+export interface PlayerHandle {
+  /** Resolved true, sobald der Player geladen ist; false, wenn er nicht starten konnte (Hinweis ist dann angezeigt). */
+  ready: Promise<boolean>;
+  /** Idempotent; auch waehrend des Ladens erlaubt. */
+  destroy(): void;
+}
+
+/** Index des hervorgehobenen Zugs (laufender Zug oder zuletzt ausgefuehrter), -1 am Start. */
+export function activeMoveIndex(s: PlayerState): number {
+  return s.currentMove !== null ? s.index : s.index - 1;
 }
 
 function hasWebGL(): boolean {
@@ -15,24 +30,10 @@ function hasWebGL(): boolean {
   }
 }
 
-function showNotice(root: HTMLElement, text: string): void {
-  root.replaceChildren();
-  const p = document.createElement('p');
-  p.className = 'notice';
+function showNotice(host: HTMLElement, text: string): void {
+  host.replaceChildren();
+  const p = el('p', 'notice', host, text);
   p.setAttribute('role', 'alert');
-  p.textContent = text;
-  root.appendChild(p);
-}
-
-function el<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  className: string,
-  parent?: HTMLElement,
-): HTMLElementTagNameMap[K] {
-  const e = document.createElement(tag);
-  e.className = className;
-  parent?.appendChild(e);
-  return e;
 }
 
 type IconName = 'first' | 'back' | 'play' | 'pause' | 'next' | 'last';
@@ -75,26 +76,32 @@ function button(parent: HTMLElement, id: string, label: string, icon: IconName):
   return b;
 }
 
-/** Baut die Player-Ansicht in `root`. Gibt eine Aufraeum-Funktion zurueck. */
-export async function mountPlayerView(root: HTMLElement, opts: PlayerViewOptions): Promise<() => void> {
+const NO_OP_HANDLE: PlayerHandle = { ready: Promise.resolve(false), destroy: () => undefined };
+
+/**
+ * Baut die Player-Ansicht (Wuerfel, Steuerleiste, Zugliste) in `host`. Synchron: Der Wuerfel
+ * laedt im Hintergrund, `handle.destroy()` ist jederzeit (auch waehrend des Ladens) sicher.
+ * Kann der Player nicht starten (kein WebGL, Ladefehler), steht ein Hinweistext im `host`.
+ */
+export function mountPlayer(host: HTMLElement, opts: PlayerViewOptions): PlayerHandle {
   if (!hasWebGL()) {
     showNotice(
-      root,
-      'Dieser Browser unterstützt WebGL nicht oder es ist deaktiviert. Bitte aktiviere WebGL oder nutze einen aktuellen Browser.',
+      host,
+      'Dieser Browser unterstützt WebGL nicht oder es ist deaktiviert, deshalb kann der 3D-Würfel nicht angezeigt werden. Bitte aktiviere WebGL oder nutze einen aktuellen Browser. Die Erklärungen unten kannst du trotzdem lesen.',
     );
-    return () => undefined;
+    return NO_OP_HANDLE;
   }
 
   let moves: string[];
   try {
     moves = parseMoves(opts.alg);
   } catch {
-    showNotice(root, 'Der Algorithmus konnte nicht gelesen werden.');
-    return () => undefined;
+    showNotice(host, 'Der Algorithmus konnte nicht gelesen werden.');
+    return NO_OP_HANDLE;
   }
 
-  root.replaceChildren();
-  const view = el('main', 'player', root);
+  const view = el('section', 'player', host);
+  view.setAttribute('aria-label', 'Würfel-Player');
   const cubeArea = el('div', 'cube-area', view);
   cubeArea.dataset['testid'] = 'cube';
   const panel = el('div', 'panel', view);
@@ -129,8 +136,7 @@ export async function mountPlayerView(root: HTMLElement, opts: PlayerViewOptions
   const algText = el('p', 'alg', panel);
   algText.dataset['testid'] = 'alg';
   const spans = moves.map((m, i) => {
-    const s = el('span', 'alg-move', algText);
-    s.textContent = m;
+    const s = el('span', 'alg-move', algText, m);
     s.dataset['i'] = String(i);
     return s;
   });
@@ -138,6 +144,7 @@ export async function mountPlayerView(root: HTMLElement, opts: PlayerViewOptions
   const player: CubePlayer = createPlayer(cubeArea);
   // Bedienung erst nach fertigem load(); vorher wuerde jumpTo/Schritt ins Leere laufen.
   let ready = false;
+  let destroyed = false;
   slider.disabled = true;
 
   const render = (s: PlayerState): void => {
@@ -164,7 +171,7 @@ export async function mountPlayerView(root: HTMLElement, opts: PlayerViewOptions
     setBlocked(bFwd, !ready || busy || (s.index >= total && !animating));
     setBlocked(bPlay, !ready);
     if (!s.playing && !animating) live.textContent = `Zug ${s.index} von ${total}`;
-    const active = s.currentMove !== null ? s.index : s.index - 1;
+    const active = activeMoveIndex(s);
     spans.forEach((sp, i) => {
       const on = i === active;
       sp.classList.toggle('active', on);
@@ -172,6 +179,7 @@ export async function mountPlayerView(root: HTMLElement, opts: PlayerViewOptions
       if (on) sp.setAttribute('aria-current', 'true');
       else sp.removeAttribute('aria-current');
     });
+    opts.onState?.(s);
   };
 
   const unsub = player.onChange(render);
@@ -189,25 +197,33 @@ export async function mountPlayerView(root: HTMLElement, opts: PlayerViewOptions
   });
   render(player.getState());
 
-  try {
-    await player.load(opts.setup, opts.alg);
-  } catch (err) {
-    console.error(err);
-    unsub();
-    player.destroy();
-    showNotice(
-      root,
-      'Die 3D-Ansicht konnte nicht geladen werden. Bitte Seite neu laden oder einen anderen Browser nutzen.',
-    );
-    return () => undefined;
-  }
-  ready = true;
-  slider.disabled = false;
-  render(player.getState());
-  view.dataset['ready'] = 'true';
-
-  return () => {
+  const destroy = (): void => {
+    if (destroyed) return;
+    destroyed = true;
     unsub();
     player.destroy();
   };
+
+  const readyPromise = player.load(opts.setup, opts.alg).then(
+    () => {
+      if (destroyed) return false;
+      ready = true;
+      slider.disabled = false;
+      render(player.getState());
+      view.dataset['ready'] = 'true';
+      return true;
+    },
+    (err: unknown) => {
+      if (destroyed) return false;
+      console.error(err);
+      destroy();
+      showNotice(
+        host,
+        'Die 3D-Ansicht konnte nicht geladen werden. Bitte Seite neu laden oder einen anderen Browser nutzen.',
+      );
+      return false;
+    },
+  );
+
+  return { ready: readyPromise, destroy };
 }
