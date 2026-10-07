@@ -4,7 +4,7 @@
   "phase": 7,
   "titel": "Gelbe Ecken orientieren",
   "ziel": {
-    "text": "Alle vier gelben Ecken zeigen mit Gelb nach oben, der Würfel ist gelöst. Jetzt sitzt alles schon am richtigen Platz; nur einzelne Ecken sind noch verdreht. Du bearbeitest immer nur die Ecke vorne rechts oben und drehst danach die obere Schicht mit U weiter, bis die nächste verdrehte Ecke dort liegt. Faustregel für die Ecke vorne rechts oben: Zeigt Gelb nach rechts, wiederholst du R' D' R D zweimal; zeigt Gelb nach vorne, viermal. Zwischen den Durchgängen sieht der Würfel durcheinander aus; das ist normal und wird erst mit dem letzten Durchgang wieder heil. Nicht abbrechen!",
+    "text": "Alle vier gelben Ecken zeigen mit Gelb nach oben; der Würfel ist gelöst. Jetzt sitzt alles am richtigen Platz, nur einzelne Ecken sind verdreht. Ein Durchgang ist die Zugfolge R' D' R D (4 Züge). Du arbeitest immer an der Ecke oben vorne rechts: Zeigt ihr Gelb nach rechts, machst du 2 Durchgänge; zeigt Gelb nach vorne, 4 Durchgänge. Dann drehst du die obere Schicht mit U, bis die nächste verdrehte Ecke dort steht. Mitten in der Folge sieht die untere Schicht durcheinander aus; das ist normal. Erst der vollständige Ablauf bringt alles zurück: Nach 6 Durchgängen am Stück wäre sicher alles wieder wie am Anfang, bei 2 oder 4 Durchgängen stellt erst die ganze Folge mit den U-Drehungen die Ordnung her. Brich also nie mittendrin ab.",
     "erhalten": ["gelbe-ecken-position"],
     "erreicht": ["geloest"],
     "aufTolerant": false
@@ -12,50 +12,69 @@
   "algorithmus": {
     "name": "Eckendreher",
     "zuege": "R' D' R D",
+    "periode": 6,
     "trigger": [
-      { "name": "Ecke ausklinken (R' D')", "zuege": "R' D'", "erklaerung": "Die erste Hälfte eines Durchgangs." },
-      { "name": "Ecke einklinken (R D)", "zuege": "R D", "erklaerung": "Die zweite Hälfte eines Durchgangs. Je zwei Durchgänge (8 Züge) bzw. vier Durchgänge (16 Züge) drehen die Ecke vorne rechts oben um ein Drittel in je eine andere Richtung, ohne die übrigen Teile endgültig zu verschieben." }
+      {
+        "name": "Ecke ausklinken (R' D')",
+        "zuege": "R' D'",
+        "erklaerung": "Die erste Hälfte eines Durchgangs."
+      },
+      {
+        "name": "Ecke einklinken (R D)",
+        "zuege": "R D",
+        "erklaerung": "Die zweite Hälfte eines Durchgangs. Wiederholt (2 oder 4 Durchgänge) dreht sie die Ecke oben vorne rechts, je nach Anzahl in die eine oder andere Richtung."
+      }
     ],
     "schritte": [
       { "bereich": { "von": 0, "bis": 2 }, "text": "R' D': die erste Hälfte des Durchgangs." },
-      { "bereich": { "von": 2, "bis": 4 }, "text": "R D: die zweite Hälfte. Wiederhole den ganzen Durchgang zwei- oder viermal." }
+      {
+        "bereich": { "von": 2, "bis": 4 },
+        "text": "R D: die zweite Hälfte. Wiederhole den ganzen Durchgang 2-mal oder 4-mal. Zwischendurch ist die untere Schicht vorübergehend durcheinander; nach 6 Durchgängen am Stück wäre sie sicher wieder ganz."
+      }
     ]
   },
   "faelle": [
     {
       "id": "zwei-ecken-rechts",
       "name": "Zwei Ecken, beide mit Gelb nach rechts",
-      "erkennung": "Die Ecken vorne rechts und hinten rechts zeigen Gelb nach rechts. Vorne rechts: Gelb nach rechts, also zwei Durchgänge. Dann U: Die zweite Ecke liegt vorne rechts, Gelb zeigt jetzt nach vorne, also vier Durchgänge. Schließe mit U'.",
+      "erkennung": "Die Ecken vorne rechts und hinten rechts zeigen Gelb nach rechts. Vorne rechts: Gelb nach rechts, also 2 Durchgänge. Dann U: Die zweite Ecke steht vorne rechts, Gelb zeigt jetzt nach vorne, also 4 Durchgänge. Schließe mit U'.",
+      "hinweis": "2 Durchgänge, U, 4 Durchgänge, U'.",
       "loesung": "(R' D' R D)2 U (R' D' R D)4 U'"
     },
     {
       "id": "zwei-ecken-diagonal",
       "name": "Zwei Ecken diagonal gegenüber",
-      "erkennung": "Die Ecke vorne rechts zeigt Gelb nach rechts, die Ecke hinten links zeigt Gelb nach hinten. Vorne rechts: zwei Durchgänge. Dann U2: Die Ecke hinten links liegt jetzt vorne rechts, Gelb zeigt nach vorne, also vier Durchgänge. Schließe mit U2.",
+      "erkennung": "Die Ecke vorne rechts zeigt Gelb nach rechts, die Ecke hinten links zeigt Gelb nach hinten. Vorne rechts: 2 Durchgänge. Dann U2: Die Ecke hinten links steht vorne rechts, Gelb zeigt nach vorne, also 4 Durchgänge. Schließe mit U2.",
+      "hinweis": "2 Durchgänge, U2, 4 Durchgänge, U2.",
       "loesung": "(R' D' R D)2 U2 (R' D' R D)4 U2"
     },
     {
       "id": "drei-ecken-rund",
       "name": "Drei Ecken verdreht",
-      "erkennung": "Drei Ecken sind verdreht, die Ecke hinten rechts ist schon richtig: Vorne rechts zeigt Gelb nach rechts, hinten links nach links, vorne links nach vorne. Immer zwei Durchgänge, dazwischen die obere Schicht weiterdrehen (U2, dann U, dann U).",
+      "erkennung": "Die Ecke hinten rechts ist schon richtig. Vorne rechts zeigt Gelb nach rechts, hinten links nach links, vorne links nach vorne. Immer 2 Durchgänge, dazwischen die obere Schicht weiterdrehen (U2, dann U, dann U).",
+      "hinweis": "2 Durchgänge, dann U2, 2 Durchgänge, U, 2 Durchgänge, U.",
       "loesung": "(R' D' R D)2 U2 (R' D' R D)2 U (R' D' R D)2 U"
     },
     {
       "id": "drei-ecken-andere-richtung",
       "name": "Drei Ecken verdreht, andere Drehrichtung",
-      "erkennung": "Drei Ecken sind verdreht, die Ecke vorne rechts ist schon richtig: Hinten rechts zeigt Gelb nach rechts, hinten links nach hinten, vorne links nach links. Dreh zuerst U; dann jeweils vier Durchgänge, dazwischen immer U.",
+      "erkennung": "Die Ecke vorne rechts ist schon richtig. Hinten rechts zeigt Gelb nach rechts, hinten links nach hinten, vorne links nach links. Dreh zuerst U; dann jeweils 4 Durchgänge, dazwischen immer U.",
+      "hinweis": "U, dann dreimal: 4 Durchgänge und U.",
+      "vorbereitung": "U",
       "loesung": "U (R' D' R D)4 U (R' D' R D)4 U (R' D' R D)4 U"
     },
     {
       "id": "vier-ecken-paarweise",
       "name": "Alle vier Ecken verdreht (paarweise)",
-      "erkennung": "Alle vier Ecken zeigen Gelb zur Seite: vorne rechts nach rechts, hinten rechts nach hinten, hinten links nach hinten, vorne links nach links. Der Reihe nach: zwei, zwei, vier, vier Durchgänge, dazwischen immer U.",
+      "erkennung": "Alle vier Ecken zeigen Gelb zur Seite: vorne rechts nach rechts, hinten rechts nach hinten, hinten links nach hinten, vorne links nach links. Der Reihe nach 2, 2, 4 und 4 Durchgänge, jeweils danach U.",
+      "hinweis": "Durchgänge: 2, 2, 4, 4, jeweils mit U danach.",
       "loesung": "(R' D' R D)2 U (R' D' R D)2 U (R' D' R D)4 U (R' D' R D)4 U"
     },
     {
       "id": "vier-ecken-abwechselnd",
       "name": "Alle vier Ecken verdreht (abwechselnd)",
-      "erkennung": "Alle vier Ecken zeigen Gelb zur Seite: vorne rechts und hinten rechts nach rechts, hinten links und vorne links nach links. Der Reihe nach: zwei, vier, zwei, vier Durchgänge, dazwischen immer U.",
+      "erkennung": "Alle vier Ecken zeigen Gelb zur Seite: vorne rechts und hinten rechts nach rechts, hinten links und vorne links nach links. Der Reihe nach 2, 4, 2 und 4 Durchgänge, jeweils danach U.",
+      "hinweis": "Durchgänge: 2, 4, 2, 4, jeweils mit U danach.",
       "loesung": "(R' D' R D)2 U (R' D' R D)4 U (R' D' R D)2 U (R' D' R D)4 U"
     }
   ]

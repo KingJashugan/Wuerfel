@@ -15,6 +15,7 @@ const SUNE = "R U R' U R U2 R'";
 const SEXY = "R U R' U'";
 const FRU = "F R U R' U' F'";
 // Mittlere Kante nach rechts (Anfaengermethode): U R U' R' U' F' U F
+const TWIST = "(R' D' R D)2 U (R' D' R D)4 U'";
 const EDGE_RIGHT = "U R U' R' U' F' U F";
 
 describe('Orientierung z2', () => {
@@ -44,7 +45,7 @@ describe('regionsSatisfied', () => {
   it('ein U-Zug zerstoert nur Bereiche, die obere Teile betreffen', async () => {
     const v = await regionsSatisfied(caseSetup(''), 'U', [...CUBE_REGIONS]);
     expect(v.sort()).toEqual(
-      ['gelbe-ecken-orientierung', 'gelbe-ecken-position', 'gelbe-kanten-position', 'geloest'].sort(),
+      ['gelbe-ecken-position', 'gelbe-kanten-position', 'geloest'].sort(),
     );
   });
   it('ein U-Zug laesst gelbes Kreuz, Schichten unten unberuehrt (obere Kanten alle orientiert)', async () => {
@@ -53,13 +54,17 @@ describe('regionsSatisfied', () => {
   it('F zerstoert das Kreuz', async () => {
     expect(await regionsSatisfied('z2', 'F', ['kreuz-unten'])).toEqual(['kreuz-unten']);
   });
-  it('gelbe Ecken position: gedrehte Ecken erlaubt, vertauschte nicht', async () => {
-    // Sune-Setup: Ecken oben falsch orientiert, aber am richtigen Platz? Nein: Sune dreht und tauscht.
+  it('gelbe-ecken-position: vertauschte Ecken verletzen, in Ruhe gedrehte Ecken nicht', async () => {
+    // Inverse der Sune auf dem geloesten Wuerfel: Ecken dort vertauscht UND gedreht.
     expect(await regionsSatisfied(caseSetup(SUNE), '', ['gelbe-ecken-position'])).toEqual(['gelbe-ecken-position']);
-    // R' D' R D wiederholt (Ecke unten drehen) zerstoert die Position nicht in der ersten Schicht, hier nur Ecken oben:
-    // "R U R' U R U2 R'" ^ 6 ist geloest.
-    const six = Array(6).fill(SUNE).join(' ');
-    expect(await regionsSatisfied('z2', six, [...CUBE_REGIONS])).toEqual([]);
+    // Inverse des Phase-7-Falls: Ecken nur am Platz gedreht -> Position erfuellt, geloest nicht.
+    const twisted = "z2 " + invert(TWIST);
+    expect(await regionsSatisfied(twisted, '', ['gelbe-ecken-position'])).toEqual([]);
+    expect(await regionsSatisfied(twisted, '', ['gelbe-kanten-position', 'zweite-schicht'])).toEqual([]);
+    expect(await regionsSatisfied(twisted, '', ['geloest'])).toEqual(['geloest']);
+  });
+  it('Sune sechsmal angewendet ist wieder geloest', async () => {
+    expect(await regionsSatisfied('z2', Array(6).fill(SUNE).join(' '), [...CUBE_REGIONS])).toEqual([]);
   });
   it('ist tolerant gegen Rotation des ganzen Wuerfels am Ende', async () => {
     expect(await regionsSatisfied('z2', 'y', [...CUBE_REGIONS])).toEqual([]);
@@ -153,7 +158,7 @@ describe('checkSolvesCase', () => {
     }
   });
   it('mittlere Kante: Algorithmus fuer rechts loest Fall rechts (erhalten erste Schicht, erreicht zweite)', async () => {
-    // Fall: Kante FR steckt oben; Setup = Inverses der Loesung, Loesung = Algorithmus.
+    // Setup = z2 + Inverses der Loesung (mittlere Kante rechts wird aus dem Wuerfel gehoben).
     const setup = caseSetup(EDGE_RIGHT);
     const r = await checkSolvesCase({
       setup,
@@ -174,7 +179,7 @@ describe('checkSolvesCase', () => {
     });
     expect(bad.ok).toBe(false);
   });
-  it('Fixture-Selbstpruefung: jeder Algorithmus aus U-Schicht-Bausteinen loest sein Inverses', async () => {
+  it('Round-Trip: jeder bekannte U-Schicht-Algorithmus loest den aus seinem Inversen gebauten Fall', async () => {
     for (const alg of [SUNE, "L' U' L U' L' U2 L", FRU, "F U R U' R' F'", `${SEXY} ${SEXY}`]) {
       const r = await checkSolvesCase({
         setup: caseSetup(alg),
@@ -184,7 +189,6 @@ describe('checkSolvesCase', () => {
         aufTolerant: false,
       });
       expect(r.ok, alg).toBe(true);
-      expect(invert(invert(alg))).toBeTypeOf('string');
     }
   });
 });
@@ -231,7 +235,6 @@ function faceletRegion(s: CubeState, region: CubeRegion): boolean {
     case 'gelbes-kreuz': return first && edges(E_MID) && upOriented();
     case 'gelbe-kanten-position': return first && edges(E_MID) && edges(E_UP);
     case 'gelbe-ecken-position': return first && edges(E_MID) && edges(E_UP) && upCornerPlace();
-    case 'gelbe-ecken-orientierung':
     case 'geloest': return first && edges(E_MID) && edges(E_UP) && corners(C_UP);
   }
 }

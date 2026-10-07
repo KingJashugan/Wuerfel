@@ -4,35 +4,74 @@
   "phase": 1,
   "titel": "Weißes Kreuz",
   "ziel": {
-    "text": "Die vier weißen Kantensteine bilden unten ein Kreuz. Zusätzlich passt die zweite Farbe jeder Kante zur Mittelfarbe der Seitenfläche, an der sie liegt.",
+    "text": "Die vier weißen Kanten bilden unten ein Kreuz um den weißen Mittelstein. Zusätzlich passt die zweite Farbe jeder Kante zum Mittelstein der Seitenfläche, an der sie liegt.",
     "erhalten": [],
     "erreicht": ["kreuz-unten"],
     "aufTolerant": false
   },
-  "prinzip": "Ein Kreuz ist hier das Plus-Muster aus dem weißen Mittelstein und den vier weißen Kantensteinen (Kanten sind die Steine mit zwei Farben). Es gibt keinen festen Algorithmus: Suche eine weiße Kante, überlege, wo sie hinsoll, und bewege sie mit wenigen Drehungen dorthin, ohne bereits eingebaute Kanten zu zerstören. Faustregel: Dreh zuerst die Fläche, die die Kante blockiert, nach oben aus dem Weg, positioniere die Kante in der gelben Schicht über ihrem Platz und drehe dann die Seitenfläche, bis sie unten einrastet. Die Beispiele zeigen einfache Situationen; die Lösungen sind Vorschläge, andere kurze Wege sind genauso richtig.",
+  "prinzip": "Zuerst ein paar Begriffe. Der Würfel besteht aus 26 sichtbaren Steinen: 6 Mittelsteine (eine Farbe; sie bewegen sich nie gegeneinander und legen die Farbe ihrer Seite fest), 12 Kanten (zwei Farben) und 8 Ecken (drei Farben). Eine Schicht ist eine Ebene aus neun Steinen, zum Beispiel die untere Schicht auf der weißen Seite. In dieser App liegt der Würfel immer so: Weiß unten, Grün vorne, Gelb oben. Das Kreuz ist das Plus-Muster aus dem weißen Mittelstein und den vier weißen Kanten. Es reicht nicht, dass Weiß unten ist: Die zweite Farbe jeder Kante muss auch zum Mittelstein ihrer Seite passen. Für das Kreuz gibt es keinen festen Algorithmus. Du suchst eine weiße Kante, überlegst, wo sie hinsoll, und bewegst sie mit wenigen Drehungen dorthin, ohne bereits eingebaute Kanten zu zerstören. Faustregel: Hol die Kante in die obere Schicht, dreh sie dort mit U über ihren Platz und dreh dann die Seitenfläche, bis sie unten einrastet. Die Beispiele zeigen, wie ein verstelltes Kreuz mit einigen Drehungen wieder zusammenkommt; die Lösungen sind Vorschläge, andere kurze Wege sind genauso richtig.",
   "beispiele": [
     {
       "id": "kante-oben",
-      "beschreibung": "Eine weiße Kante liegt oben direkt über ihrem Platz an der Vorderseite, mit Weiß nach oben. Eine halbe Drehung der Vorderseite bringt sie nach unten.",
+      "beschreibung": "Eine weiße Kante liegt oben vorne, mit Weiß nach oben, genau über ihrem Platz. Eine halbe Drehung der Vorderseite bringt sie nach unten.",
       "setup": "F2",
       "loesung": "F2",
-      "schritte": [{ "bereich": { "von": 0, "bis": 1 }, "text": "F2 dreht die Vorderseite um 180 Grad: Die weiße Kante wandert von oben nach unten und sitzt am richtigen Platz." }]
+      "schritte": [
+        {
+          "bereich": { "von": 0, "bis": 1 },
+          "text": "F2 dreht die Vorderseite um 180 Grad: Die weiße Kante wandert von oben nach unten an ihren Platz."
+        }
+      ]
     },
     {
       "id": "kante-seite",
-      "beschreibung": "Eine weiße Kante ist beim Verdrehen der Vorderseite in die mittlere Schicht gerutscht. Die Gegendrehung der Vorderseite bringt sie zurück an ihren Platz.",
+      "beschreibung": "Die weiße Kante ist in die mittlere Schicht vorne links gerutscht, Weiß zeigt nach links. Die Gegendrehung der Vorderseite bringt sie zurück.",
       "setup": "F",
       "loesung": "F'",
-      "schritte": [{ "bereich": { "von": 0, "bis": 1 }, "text": "F' dreht die Vorderseite zurück: Die Kante kehrt an ihren Platz im Kreuz zurück." }]
+      "schritte": [
+        {
+          "bereich": { "von": 0, "bis": 1 },
+          "text": "F' dreht die Vorderseite zurück: Die Kante kehrt an ihren Platz im Kreuz zurück."
+        }
+      ]
     },
     {
-      "id": "kante-mehrere-zuege",
-      "beschreibung": "Das Kreuz wurde mit mehreren Zügen auseinandergerissen. Prinzip: Mach die Zugfolge rückwärts, indem du jeden Zug umkehrst und in umgekehrter Reihenfolge ausführst.",
-      "setup": "F U R' U'",
-      "loesung": "U R U' F'",
+      "id": "kante-verdreht",
+      "beschreibung": "Die weiße Kante liegt oben, steht aber nicht über ihrem Platz, weil die obere Schicht gedreht wurde. Erst U' zurück über den Platz, dann nach unten.",
+      "setup": "F2 U",
+      "loesung": "U' F2",
       "schritte": [
-        { "bereich": { "von": 0, "bis": 3 }, "text": "U R U' holt die Kante wieder in die Position, aus der sie weggedreht wurde." },
-        { "bereich": { "von": 3, "bis": 4 }, "text": "F' dreht die Vorderseite zurück und setzt die Kante ins Kreuz." }
+        {
+          "bereich": { "von": 0, "bis": 1 },
+          "text": "U' dreht die obere Schicht zurück: Die Kante steht wieder über ihrem Platz."
+        },
+        { "bereich": { "von": 1, "bis": 2 }, "text": "F2 bringt sie nach unten." }
+      ]
+    },
+    {
+      "id": "zwei-kanten",
+      "beschreibung": "Zwei weiße Kanten liegen oben, vorne und rechts, jede über ihrem Platz. Zwei halbe Drehungen holen beide nach unten.",
+      "setup": "R2 F2",
+      "loesung": "F2 R2",
+      "schritte": [
+        { "bereich": { "von": 0, "bis": 1 }, "text": "F2 holt die vordere Kante nach unten." },
+        { "bereich": { "von": 1, "bis": 2 }, "text": "R2 holt die rechte Kante nach unten." }
+      ]
+    },
+    {
+      "id": "drei-kanten-verdreht",
+      "beschreibung": "Drei weiße Kanten (vorne, rechts, hinten) liegen oben, und die obere Schicht ist zusätzlich gedreht. Zuerst die Schicht zurückdrehen, dann jede Kante mit einer halben Drehung nach unten bringen.",
+      "setup": "F2 R2 B2 U",
+      "loesung": "U' B2 R2 F2",
+      "schritte": [
+        {
+          "bereich": { "von": 0, "bis": 1 },
+          "text": "U' dreht die obere Schicht zurück: Alle drei Kanten stehen wieder über ihren Plätzen."
+        },
+        {
+          "bereich": { "von": 1, "bis": 4 },
+          "text": "B2, R2 und F2 holen die drei Kanten nacheinander nach unten."
+        }
       ]
     }
   ]

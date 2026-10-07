@@ -96,8 +96,8 @@ describe('validateEntry (algorithmisch)', () => {
     expect(fehler(validateEntry(e)).join('\n')).toMatch(/gibts-nicht/);
   });
   it('aufTolerant muss boolean sein', () => {
-    const e = goodAlgEntry() as Record<string, any>;
-    e['ziel'].aufTolerant = 'ja';
+    const e = goodAlgEntry();
+    (e.ziel as Record<string, unknown>)['aufTolerant'] = 'ja';
     expect(validateEntry(e).ok).toBe(false);
   });
   it('doppelte Fall-IDs werden abgelehnt', () => {
@@ -155,10 +155,11 @@ describe('validateEntry (intuitiv)', () => {
     expect(validateEntry(f).ok).toBe(false);
   });
   it('optionale Schritte eines Beispiels werden geprueft', () => {
-    const e = goodIntuitive() as Record<string, any>;
-    e['beispiele'][0].schritte = [{ bereich: { von: 0, bis: 2 }, text: 'ok' }];
+    const e = goodIntuitive();
+    const bsp = e.beispiele[0] as Record<string, unknown>;
+    bsp['schritte'] = [{ bereich: { von: 0, bis: 2 }, text: 'ok' }];
     expect(validateEntry(e).ok).toBe(true);
-    e['beispiele'][0].schritte = [{ bereich: { von: 1, bis: 2 }, text: 'ok' }];
+    bsp['schritte'] = [{ bereich: { von: 1, bis: 2 }, text: 'ok' }];
     expect(validateEntry(e).ok).toBe(false);
   });
 });
@@ -187,5 +188,38 @@ describe('validateMethode', () => {
     const m = goodMethode();
     m.phasen[1]!.id = m.phasen[0]!.id;
     expect(validateMethode(m).ok).toBe(false);
+  });
+});
+
+describe('validateEntry (neue Felder)', () => {
+  it('ziel.erreicht braucht mindestens einen Bereich', () => {
+    const e = goodAlgEntry();
+    e.ziel.erreicht = [];
+    expect(validateEntry(e).ok).toBe(false);
+  });
+  it('optionale Fallfelder hinweis und vorbereitung', () => {
+    const e = goodAlgEntry();
+    Object.assign(e.faelle[0]!, { hinweis: 'kurz', vorbereitung: 'U2' });
+    expect(validateEntry(e).ok).toBe(true);
+    Object.assign(e.faelle[0]!, { hinweis: '' });
+    expect(validateEntry(e).ok).toBe(false);
+  });
+  it('periode ganzzahlig 1..12, varianten mit name und zuege', () => {
+    const ok = goodAlgEntry();
+    Object.assign(ok.algorithmus, { periode: 6, varianten: [{ name: 'links', zuege: "L' U' L" }] });
+    expect(validateEntry(ok).ok).toBe(true);
+    for (const periode of [0, 13, 1.5, '6']) {
+      const e = goodAlgEntry();
+      Object.assign(e.algorithmus, { periode });
+      expect(validateEntry(e).ok, String(periode)).toBe(false);
+    }
+    const bad = goodAlgEntry();
+    Object.assign(bad.algorithmus, { varianten: [{ name: 'x' }] });
+    expect(validateEntry(bad).ok).toBe(false);
+  });
+  it('die entfernte Region gelbe-ecken-orientierung wird abgelehnt', () => {
+    const e = goodAlgEntry();
+    e.ziel.erreicht = ['gelbe-ecken-orientierung'];
+    expect(validateEntry(e).ok).toBe(false);
   });
 });

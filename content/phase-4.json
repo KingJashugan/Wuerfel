@@ -4,7 +4,7 @@
   "phase": 4,
   "titel": "Gelbes Kreuz",
   "ziel": {
-    "text": "Auf der oberen Fläche bilden die vier gelben Kantensteine ein Kreuz, d. h. alle vier Kanten zeigen mit Gelb nach oben. Dass die Seitenfarben noch nicht zu den Mitten passen, ist egal; die ersten beiden Schichten bleiben vollständig gelöst. Von oben gesehen kann das gelbe Muster ein Punkt (nur der Mittelstein), ein Winkel (zwei benachbarte Kanten, L-Form), eine Linie (zwei gegenüberliegende Kanten) oder schon das Kreuz sein.",
+    "text": "Auf der oberen Fläche bilden die vier gelben Kanten ein Kreuz: Alle vier zeigen mit Gelb nach oben. Dass die Seitenfarben noch nicht zu den Mitten passen, ist egal; die ersten beiden Schichten bleiben ganz. Von oben gesehen siehst du zuerst nur einen Punkt (kein gelbes Kantenstück oben), einen Winkel (zwei benachbarte, L-Form), eine Linie (zwei gegenüberliegende) oder schon das Kreuz.",
     "erhalten": ["zweite-schicht"],
     "erreicht": ["gelbes-kreuz"],
     "aufTolerant": false
@@ -13,40 +13,95 @@
     "name": "Gelbes Kreuz bilden",
     "zuege": "F R U R' U' F'",
     "trigger": [
-      { "name": "F (Auslöser)", "zuege": "F", "erklaerung": "Dreht die Vorderseite im Uhrzeigersinn. Es ist der Anfang eines Rahmens F ... F', in den der Sexy Move eingebettet ist." },
-      { "name": "Sexy Move", "zuege": "R U R' U'", "erklaerung": "Der vierstellige Trigger R U R' U' kennst du aus Phase 2. Er bildet hier den Kern des Algorithmus, während die Vorderseite gedreht bleibt." },
-      { "name": "F' (Schließer)", "zuege": "F'", "erklaerung": "Dreht die Vorderseite zurück und schließt den Rahmen, so dass die erste und die zweite Schicht wieder heil sind." }
+      {
+        "name": "F (Auslöser)",
+        "zuege": "F",
+        "erklaerung": "Dreht die Vorderseite im Uhrzeigersinn. Es ist der Anfang eines Rahmens F ... F', in den der Sexy Move eingebettet ist."
+      },
+      {
+        "name": "Sexy Move",
+        "zuege": "R U R' U'",
+        "erklaerung": "Den Trigger kennst du aus Phase 2. Er bildet hier den Kern des Algorithmus."
+      },
+      {
+        "name": "F' (Schließer)",
+        "zuege": "F'",
+        "erklaerung": "Dreht die Vorderseite zurück und schließt den Rahmen; die ersten beiden Schichten sind danach wieder ganz."
+      }
     ],
     "schritte": [
-      { "bereich": { "von": 0, "bis": 1 }, "text": "F öffnet den Rahmen: Die Vorderseite wird gedreht." },
-      { "bereich": { "von": 1, "bis": 5 }, "text": "Der Sexy Move R U R' U' wirkt in diesem gedrehten Zustand und verändert, welche Kanten oben gelb sind." },
-      { "bereich": { "von": 5, "bis": 6 }, "text": "F' schließt den Rahmen und stellt die erste und zweite Schicht wieder her." }
+      {
+        "bereich": { "von": 0, "bis": 1 },
+        "text": "F öffnet den Rahmen: Die Vorderseite wird gedreht."
+      },
+      {
+        "bereich": { "von": 1, "bis": 5 },
+        "text": "Der Sexy Move R U R' U' wirkt in diesem gedrehten Zustand und verändert, welche Kanten oben gelb sind."
+      },
+      { "bereich": { "von": 5, "bis": 6 }, "text": "F' schließt den Rahmen." }
     ]
   },
   "faelle": [
     {
       "id": "linie",
       "name": "Linie (waagerecht)",
-      "erkennung": "Von oben siehst du eine gelbe Linie von links nach rechts: der gelbe Mittelstein und die Kanten links und rechts zeigen Gelb nach oben. Dann reicht der Algorithmus einmal.",
+      "erkennung": "Von oben siehst du eine gelbe Linie von links nach rechts: der Mittelstein und die Kanten links und rechts zeigen Gelb nach oben.",
+      "hinweis": "Einmal der Algorithmus.",
       "loesung": "F R U R' U' F'"
     },
     {
       "id": "linie-senkrecht",
       "name": "Linie (senkrecht)",
-      "erkennung": "Die gelbe Linie läuft von vorne nach hinten statt von links nach rechts. Dreh die obere Schicht mit U um eine Vierteldrehung, bis sie waagerecht liegt, und wende den Algorithmus an. Merke: Bildet sich nach einem Durchgang noch kein Kreuz, dreh die obere Schicht passend und wiederhole den Algorithmus.",
+      "erkennung": "Die gelbe Linie läuft von vorne nach hinten statt von links nach rechts.",
+      "hinweis": "U drehen, dann der Algorithmus.",
+      "vorbereitung": "U",
       "loesung": "U F R U R' U' F'"
     },
     {
-      "id": "winkel",
-      "name": "Winkel (L-Form)",
-      "erkennung": "Zwei benachbarte gelbe Kanten bilden ein L. Dreh U, bis das L hinten links liegt (die gelben Kanten oben hinten und oben links); dann Algorithmus, U, Algorithmus. Die Fall-Lösung beginnt mit U2, das den Winkel in die Ausgangslage hinten links bringt; danach folgen Algorithmus, U und noch einmal der Algorithmus.",
-      "loesung": "U2 F R U R' U' F' U F R U R' U' F'"
+      "id": "winkel-hinten-links",
+      "name": "Winkel hinten links",
+      "erkennung": "Genau zwei benachbarte gelbe Kanten zeigen oben Gelb und bilden ein L. Hier sind es die Kanten hinten und links.",
+      "hinweis": "Merke: L nach hinten links drehen, dann den Algorithmus 2-mal hintereinander.",
+      "loesung": "F R U R' U' F' F R U R' U' F'"
+    },
+    {
+      "id": "winkel-vorne-rechts",
+      "name": "Winkel vorne rechts",
+      "erkennung": "Das L aus gelben Kanten liegt vorne und rechts.",
+      "hinweis": "U2 bringt das L nach hinten links, dann 2-mal der Algorithmus.",
+      "vorbereitung": "U2",
+      "loesung": "U2 F R U R' U' F' F R U R' U' F'"
+    },
+    {
+      "id": "winkel-vorne-links",
+      "name": "Winkel vorne links",
+      "erkennung": "Das L aus gelben Kanten liegt vorne und links.",
+      "hinweis": "U bringt das L nach hinten links, dann 2-mal der Algorithmus.",
+      "vorbereitung": "U",
+      "loesung": "U F R U R' U' F' F R U R' U' F'"
+    },
+    {
+      "id": "winkel-hinten-rechts",
+      "name": "Winkel hinten rechts",
+      "erkennung": "Das L aus gelben Kanten liegt hinten und rechts.",
+      "hinweis": "U' bringt das L nach hinten links, dann 2-mal der Algorithmus.",
+      "vorbereitung": "U'",
+      "loesung": "U' F R U R' U' F' F R U R' U' F'"
     },
     {
       "id": "punkt",
       "name": "Punkt",
-      "erkennung": "Nur der gelbe Mittelstein ist oben gelb, keine der vier Kanten. Wende den Algorithmus dreimal an, dazwischen jeweils U2 (halbe Drehung der oberen Schicht): Nach drei Durchgängen ist das Kreuz fertig.",
-      "loesung": "F R U R' U' F' U2 F R U R' U' F' U2 F R U R' U' F'"
+      "erkennung": "Nur der gelbe Mittelstein ist oben gelb, keine der vier Kanten.",
+      "hinweis": "Algorithmus 2-mal, dann U, dann noch einmal.",
+      "loesung": "F R U R' U' F' F R U R' U' F' U F R U R' U' F'"
+    },
+    {
+      "id": "linie-ungeloest-oben",
+      "name": "Linie, Ecken oben durcheinander",
+      "erkennung": "Wie die waagerechte Linie. In der Praxis stehen die gelben Ecken dabei noch falsch und falsch gedreht; das stört hier nicht. Du achtest nur auf die gelben Kanten und wendest den Algorithmus an.",
+      "hinweis": "Ecken oben sind noch egal.",
+      "loesung": "F R U R' U' F'",
+      "setup": "z2 R U R' U R U2 R' F U R U' R' F'"
     }
   ]
 }

@@ -4,7 +4,7 @@
   "phase": 3,
   "titel": "Mittlere Kanten",
   "ziel": {
-    "text": "Die vier Kanten der mittleren Schicht (Steine ohne Gelb) sitzen an ihrem Platz und stimmen mit den Mittelsteinen überein. Die Fälle hier setzen jeweils die letzte noch fehlende Kante ein; im echten Lösen machst du dasselbe nacheinander für jede Kante. Voraussetzung: Die untere Schicht (Weiß unten) ist gelöst und darf nicht kaputtgehen.",
+    "text": "Die vier Kanten der mittleren Schicht (Steine ohne Gelb) sitzen an ihrem Platz und passen zu den Mittelsteinen. Du setzt sie einzeln ein; die Fälle hier zeigen jeweils den Schritt, mit dem die letzte fehlende Kante an ihren Platz kommt. Die untere Schicht (Weiß unten) bleibt dabei ganz. Wie die gelbe Schicht oben aussieht, ist in dieser Phase noch egal.",
     "erhalten": ["erste-schicht"],
     "erreicht": ["zweite-schicht"],
     "aufTolerant": false
@@ -13,26 +13,71 @@
     "name": "Kante nach rechts einsetzen",
     "zuege": "U R U' R' U' F' U F",
     "trigger": [
-      { "name": "Anti-Sexy-Move", "zuege": "U R U' R'", "erklaerung": "Das ist der Sexy Move R U R' U' rückwärts gelesen (Umkehrung der Zugfolge). Er bereitet den Platz vorne rechts vor, an den die Kante gehört." },
-      { "name": "Vorderseiten-Trigger", "zuege": "U' F' U F", "erklaerung": "Spiegelbildlich zum ersten Trigger, aber an der Vorderseite: Er setzt die vorbereitete Kante vorne rechts ein; danach ist die untere Schicht wieder komplett." }
+      {
+        "name": "Anti-Sexy-Move",
+        "zuege": "U R U' R'",
+        "erklaerung": "Der Sexy Move R U R' U' rückwärts gelesen (Umkehrung der Zugfolge). Er bereitet den Platz vorne rechts vor, an den die Kante gehört."
+      },
+      {
+        "name": "Vorderseiten-Trigger",
+        "zuege": "U' F' U F",
+        "erklaerung": "Das Gegenstück an der Vorderseite: Es setzt die vorbereitete Kante vorne rechts ein. Danach ist die untere Schicht wieder komplett."
+      }
     ],
     "schritte": [
-      { "bereich": { "von": 0, "bis": 4 }, "text": "Anti-Sexy-Move: Der Platz vorne rechts wird freigemacht." },
-      { "bereich": { "von": 4, "bis": 8 }, "text": "Vorderseiten-Trigger: Die Kante rastet in der mittleren Schicht ein; die untere Schicht ist danach wieder komplett." }
+      {
+        "bereich": { "von": 0, "bis": 4 },
+        "text": "Anti-Sexy-Move: Der Platz vorne rechts wird vorbereitet."
+      },
+      {
+        "bereich": { "von": 4, "bis": 8 },
+        "text": "Vorderseiten-Trigger: Die Kante rastet in der mittleren Schicht ein; die untere Schicht ist danach wieder komplett."
+      }
+    ],
+    "varianten": [
+      { "name": "Spiegelvariante (nach links)", "zuege": "U' L' U L U F U' F'" }
     ]
   },
   "faelle": [
     {
       "id": "kante-rechts",
       "name": "Kante nach rechts",
-      "erkennung": "Suche in der gelben Schicht eine Kante ohne Gelb. Dreh U, bis ihre vordere Farbe zur Mitte der Vorderseite passt. Zeigt die obere Farbe der Kante zur rechten Seitenmitte, muss die Kante nach vorne rechts: benutze den Algorithmus nach rechts.",
+      "erkennung": "Suche in der gelben Schicht eine Kante ohne Gelb. Dreh U, bis ihre vordere Farbe zur Mitte der Vorderseite passt. Passt die obere Farbe der Kante zur rechten Seitenmitte, gehört sie nach vorne rechts.",
+      "hinweis": "Vorne Farbe passt, oben Farbe passt zur rechten Mitte: Algorithmus nach rechts.",
       "loesung": "U R U' R' U' F' U F"
     },
     {
       "id": "kante-links",
       "name": "Kante nach links",
-      "erkennung": "Gleiche Ausgangslage: Kante ohne Gelb, vordere Farbe passt zur vorderen Mitte. Zeigt die obere Farbe zur linken Seitenmitte, muss die Kante nach vorne links: benutze den Spiegel-Algorithmus nach links (U' L' U L U F U' F'). Er ist das Spiegelbild des Rechts-Algorithmus: jeder Zug wird gespiegelt (R wird zu L', U zu U', F' zu F).",
+      "erkennung": "Gleiche Ausgangslage: Kante ohne Gelb, vordere Farbe passt zur vorderen Mitte. Passt die obere Farbe zur linken Seitenmitte, gehört die Kante nach vorne links. Dann nimmst du den Spiegel-Algorithmus: jeder Zug wird gespiegelt (R wird zu L', U zu U', F' zu F).",
+      "hinweis": "Obere Farbe passt zur linken Mitte: Spiegelvariante nach links.",
       "loesung": "U' L' U L U F U' F'"
+    },
+    {
+      "id": "kante-rechts-ungeloest-oben",
+      "name": "Kante nach rechts, obere Schicht durcheinander",
+      "erkennung": "So sieht es in der Praxis aus: Unten fehlt nur noch die mittlere Kante vorne rechts, und oben liegen Kanten und Ecken wild durcheinander. Das stört nicht. Such die passende Kante in der gelben Schicht, drehe sie wie im ersten Fall vor ihre Mitte und wende den Algorithmus nach rechts an. Die obere Schicht bleibt danach unaufgeräumt; sie kommt erst in Phase 4 bis 7 an die Reihe.",
+      "hinweis": "Obere Schicht darf unordentlich bleiben.",
+      "loesung": "U R U' R' U' F' U F",
+      "setup": "z2 R U R' U R U2 R' F' U' F U R U R' U'"
+    },
+    {
+      "id": "kante-falsch-rechts",
+      "name": "Falsche Kante steckt vorne rechts",
+      "erkennung": "In der mittleren Schicht vorne rechts steckt eine Kante mit Gelb. Sie gehört dort nicht hin; die Kante, die vorne rechts hingehört, liegt in der oberen Schicht. Wende den Algorithmus nach rechts zweimal hintereinander an (vorher ein U): Die falsche Kante wird nach oben herausgeholt und die richtige eingesetzt.",
+      "hinweis": "Falsche Kante in der Mitte: Algorithmus zum Herausholen, dann nochmal.",
+      "vorbereitung": "U",
+      "loesung": "U U R U' R' U' F' U F U R U' R' U' F' U F",
+      "setup": "z2 F' U' F U R U R' U R U' R' U' F' U F"
+    },
+    {
+      "id": "kante-falsch-links",
+      "name": "Falsche Kante steckt vorne links",
+      "erkennung": "In der mittleren Schicht vorne links steckt eine Kante mit Gelb. Sie gehört dort nicht hin; die richtige Kante liegt oben. Wende den Spiegel-Algorithmus nach links zweimal hintereinander an (vorher U2).",
+      "hinweis": "Wie vorher, nur mit dem Spiegel-Algorithmus nach links.",
+      "vorbereitung": "U2",
+      "loesung": "U2 U' L' U L U F U' F' U' L' U L U F U' F'",
+      "setup": "z2 F U F' U' L' U' L U2 L' U L U F U' F'"
     }
   ]
 }

@@ -4,40 +4,75 @@
   "phase": 2,
   "titel": "Weiße Ecken",
   "ziel": {
-    "text": "Die vier weißen Ecksteine sitzen unten an ihrem Platz und mit Weiß nach unten. Zusammen mit dem Kreuz ist damit die ganze untere Schicht (erste Schicht) gelöst und alle Seitenfarben passen zu den Mittelsteinen.",
+    "text": "Die vier weißen Ecken sitzen unten an ihrem Platz, mit Weiß nach unten. Zusammen mit dem Kreuz ist damit die ganze untere Schicht gelöst, und alle Seitenfarben passen zu den Mittelsteinen.",
     "erhalten": ["kreuz-unten"],
     "erreicht": ["erste-schicht"],
     "aufTolerant": false
   },
-  "prinzip": "Eine Ecke ist ein Stein mit drei Farben. Drehe die obere Schicht (U), bis eine weiße Ecke genau über dem Platz steht, an den sie gehört. Dann wiederholst du einen kurzen Block, den Sexy Move: R U R' U'. Ein solcher Block, der oft hintereinander verwendet wird, heißt Trigger. Der Sexy Move bringt eine Ecke schrittweise an ihren Platz; je nach Lage der Ecke braucht es 1, 3 oder 5 Wiederholungen (siehe Beispiele). Nach 6 Wiederholungen wäre alles wieder wie am Anfang; wiederhole also nur, bis die Ecke unten richtig sitzt, und mach nicht weiter. Das Kreuz wird zwischendurch vorübergehend gestört, ist aber am Ende wieder vollständig.",
+  "prinzip": "Eine Ecke ist ein Stein mit drei Farben. Dreh die obere Schicht (U), bis eine weiße Ecke oben genau über dem Platz steht, an den sie gehört; der Platz liegt direkt darunter. Dann wiederholst du einen kurzen Block, den Sexy Move: R U R' U'. Ein solcher kurzer Block, der immer wieder gebraucht und oft wiederholt wird, heißt Trigger. Wie oft du den Sexy Move wiederholst, hängt davon ab, wohin der weiße Aufkleber der Ecke zeigt (die Ecke steht oben vorne rechts): Zeigt Weiß nach rechts, wiederholst du 1-mal; zeigt Weiß nach oben, 3-mal; zeigt Weiß nach vorne, 5-mal. Sitzt die Ecke schon unten vorne rechts an ihrem Platz, ist aber verdreht, braucht es 2 oder 4 Wiederholungen. Nach 6 Wiederholungen wäre alles wieder wie am Anfang; hör also auf, sobald die Ecke unten richtig sitzt. Das Kreuz wird zwischendurch gestört, ist aber am Ende wieder vollständig. Die Beispiele belegen jede dieser Zuordnungen.",
   "beispiele": [
     {
-      "id": "ecke-ein-mal",
-      "beschreibung": "Die Ecke ist herausgedreht; ein einziger Sexy Move bringt sie an ihren Platz.",
+      "id": "weiss-rechts",
+      "beschreibung": "Die weiße Ecke steht oben vorne rechts, der weiße Aufkleber zeigt nach rechts. Ein einziger Sexy Move genügt.",
       "setup": "U R U' R'",
       "loesung": "R U R' U'",
-      "schritte": [{ "bereich": { "von": 0, "bis": 4 }, "text": "Sexy Move (R U R' U'): R hebt die Ecke an, U schiebt sie weiter, R' und U' setzen sie in ihren Platz." }]
-    },
-    {
-      "id": "ecke-drei-mal",
-      "beschreibung": "Ein anderer Zustand der Ecke braucht drei Wiederholungen des Sexy Move.",
-      "setup": "U R U' R' U R U' R' U R U' R'",
-      "loesung": "R U R' U' R U R' U' R U R' U'",
       "schritte": [
-        { "bereich": { "von": 0, "bis": 4 }, "text": "Erste Wiederholung des Sexy Move." },
-        { "bereich": { "von": 4, "bis": 8 }, "text": "Zweite Wiederholung." },
-        { "bereich": { "von": 8, "bis": 12 }, "text": "Dritte Wiederholung: Jetzt sitzt die Ecke unten richtig." }
+        { "bereich": { "von": 0, "bis": 4 }, "text": "Sexy Move: Die Ecke sitzt unten richtig." }
       ]
     },
     {
-      "id": "ecke-fuenf-mal",
-      "beschreibung": "Im ungünstigsten Fall braucht die Ecke fünf Wiederholungen.",
+      "id": "ecke-unten-verdreht-2",
+      "beschreibung": "Die weiße Ecke sitzt schon unten vorne rechts an ihrem Platz, ist aber verdreht. Zwei Wiederholungen des Sexy Move drehen sie zurecht.",
+      "setup": "U R U' R' U R U' R'",
+      "loesung": "R U R' U' R U R' U'",
+      "schritte": [
+        { "bereich": { "von": 0, "bis": 4 }, "text": "1. Sexy Move." },
+        { "bereich": { "von": 4, "bis": 8 }, "text": "2. Sexy Move: Die Ecke ist richtig gedreht." }
+      ]
+    },
+    {
+      "id": "weiss-oben",
+      "beschreibung": "Die weiße Ecke steht oben vorne rechts, der weiße Aufkleber zeigt nach oben. Dann braucht es drei Wiederholungen.",
+      "setup": "U R U' R' U R U' R' U R U' R'",
+      "loesung": "R U R' U' R U R' U' R U R' U'",
+      "schritte": [
+        { "bereich": { "von": 0, "bis": 4 }, "text": "1. Sexy Move." },
+        { "bereich": { "von": 4, "bis": 8 }, "text": "2. Sexy Move." },
+        {
+          "bereich": { "von": 8, "bis": 12 },
+          "text": "3. Sexy Move: Die Ecke sitzt unten richtig."
+        }
+      ]
+    },
+    {
+      "id": "ecke-unten-verdreht-4",
+      "beschreibung": "Die weiße Ecke sitzt unten vorne rechts an ihrem Platz, ist aber anders herum verdreht als im Beispiel mit 2 Wiederholungen. Hier braucht es vier.",
+      "setup": "R U R' U' R U R' U'",
+      "loesung": "R U R' U' R U R' U' R U R' U' R U R' U'",
+      "schritte": [
+        { "bereich": { "von": 0, "bis": 4 }, "text": "1. Sexy Move." },
+        { "bereich": { "von": 4, "bis": 8 }, "text": "2. Sexy Move." },
+        { "bereich": { "von": 8, "bis": 12 }, "text": "3. Sexy Move." },
+        {
+          "bereich": { "von": 12, "bis": 16 },
+          "text": "4. Sexy Move: Die Ecke ist richtig gedreht."
+        }
+      ]
+    },
+    {
+      "id": "weiss-vorne",
+      "beschreibung": "Die weiße Ecke steht oben vorne rechts, der weiße Aufkleber zeigt nach vorne. Hier sind fünf Wiederholungen nötig.",
       "setup": "R U R' U'",
       "loesung": "R U R' U' R U R' U' R U R' U' R U R' U' R U R' U'",
       "schritte": [
-        { "bereich": { "von": 0, "bis": 8 }, "text": "Die ersten zwei Wiederholungen des Sexy Move." },
-        { "bereich": { "von": 8, "bis": 16 }, "text": "Die dritte und vierte Wiederholung." },
-        { "bereich": { "von": 16, "bis": 20 }, "text": "Die fünfte Wiederholung: Die Ecke sitzt unten richtig." }
+        { "bereich": { "von": 0, "bis": 4 }, "text": "1. Sexy Move." },
+        { "bereich": { "von": 4, "bis": 8 }, "text": "2. Sexy Move." },
+        { "bereich": { "von": 8, "bis": 12 }, "text": "3. Sexy Move." },
+        { "bereich": { "von": 12, "bis": 16 }, "text": "4. Sexy Move." },
+        {
+          "bereich": { "von": 16, "bis": 20 },
+          "text": "5. Sexy Move: Die Ecke sitzt unten richtig."
+        }
       ]
     }
   ]
