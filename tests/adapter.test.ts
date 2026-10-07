@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   clampIndex,
+  createPlayer,
   indexAtTimestamp,
   invert,
   isSolvedAfter,
@@ -182,5 +183,41 @@ describe('Index-Logik (rein)', () => {
   it('leere Zeitleiste', () => {
     expect(indexAtTimestamp([], 0, 0)).toEqual({ index: 0, currentMove: null });
     expect(timestampAtIndex([], 0, 0)).toBe(0);
+  });
+});
+
+describe('createPlayer ohne Browser (cubing/twisty nicht ladbar)', () => {
+  const host = {} as HTMLElement;
+  it('load rejected mit dem Ladefehler, ohne unhandled rejection', async () => {
+    const player = createPlayer(host);
+    await expect(player.load('', SEXY)).rejects.toThrow();
+    await expect(player.load('', SEXY)).rejects.toThrow();
+  });
+  it('load rejected bei ungueltiger Notation', async () => {
+    const player = createPlayer(host);
+    await expect(player.load('', 'R Q')).rejects.toThrow(/Ungueltiger Zug/);
+  });
+  it('alle anderen Methoden sind nach Fehler no-ops, Zustand bleibt leer', async () => {
+    const player = createPlayer(host);
+    const seen: unknown[] = [];
+    const off = player.onChange((s) => seen.push(s));
+    await player.load('', SEXY).catch(() => undefined);
+    player.play();
+    player.pause();
+    player.togglePlay();
+    player.stepForward();
+    player.stepBackward();
+    player.jumpTo(3);
+    await new Promise((r) => setTimeout(r, 20));
+    expect(player.getState()).toEqual({ index: 0, total: 0, playing: false, currentMove: null });
+    expect(seen).toEqual([]);
+    off();
+    player.destroy();
+    player.destroy();
+  });
+  it('load nach destroy loest ohne Fehler auf', async () => {
+    const player = createPlayer(host);
+    player.destroy();
+    await expect(player.load('', SEXY)).resolves.toBeUndefined();
   });
 });

@@ -3,15 +3,67 @@ import type { Page } from '@playwright/test';
 
 const SHOT_DIR = 'test-results/screenshots';
 
+/**
+ * Anteil farbiger Pixel im Wuerfelbereich (Screenshot, im Browser ausgewertet).
+ * Als farbig zaehlt ein Pixel, wenn max(R,G,B) - min(R,G,B) > 60: Das schliesst Weiss (Hintergrund,
+ * weisse Wuerfelseite), Grau (Rahmen) und Schwarz aus; rot, gruen, blau und gelb liegen deutlich darueber.
+ * Herleitung der Schwelle: Der Wuerfel fuellt in den Screenshots grob 40 % der Flaeche, davon sind rund
+ * die Haelfte farbige Sticker, also ca. 15-20 %. Schwelle 5 % liegt gut darunter, aber weit ueber 0 %
+ * eines leeren (weissen/grauen) Frames.
+ */
+async function coloredShare(page: Page): Promise<number> {
+  const png = (await page.getByTestId('cube').screenshot()).toString('base64');
+  return page.evaluate(async (b64) => {
+    const img = new Image();
+    img.src = `data:image/png;base64,${b64}`;
+    await img.decode();
+    const c = document.createElement('canvas');
+    c.width = img.width;
+    c.height = img.height;
+    const ctx = c.getContext('2d');
+    if (!ctx) return 0;
+    ctx.drawImage(img, 0, 0);
+    const d = ctx.getImageData(0, 0, c.width, c.height).data;
+    let colored = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i] ?? 255;
+      const g = d[i + 1] ?? 255;
+      const b = d[i + 2] ?? 255;
+      if (Math.max(r, g, b) - Math.min(r, g, b) > 60) colored++;
+    }
+    return colored / (d.length / 4);
+  }, png);
+}
+
+const MIN_COLORED_SHARE = 0.05;
+
+async function waitRendered(page: Page): Promise<void> {
+  await expect.poll(() => coloredShare(page), { message: 'Wuerfel wurde nicht gerendert' }).toBeGreaterThan(MIN_COLORED_SHARE);
+}
+
+/** Wartet n Animationsframes (stabiles Signal statt fester Wartezeit). */
+async function frames(page: Page, n: number): Promise<void> {
+  await page.evaluate(
+    (count) =>
+      new Promise<void>((resolve) => {
+        const tick = (left: number): void => (left <= 0 ? resolve() : void requestAnimationFrame(() => tick(left - 1)));
+        tick(count);
+      }),
+    n,
+  );
+}
+
 async function open(page: Page): Promise<void> {
   await page.goto('/');
   await expect(page.locator('main.player[data-ready="true"]')).toBeVisible();
   await expect(page.getByTestId('counter')).toHaveText('Zug 0 / 4');
+  await waitRendered(page);
 }
 
 const BUTTON_IDS = ['to-start', 'step-back', 'play-pause', 'step-forward', 'to-end'];
 
 async function shot(page: Page, name: string, projectName: string): Promise<void> {
+  await waitRendered(page);
   await page.screenshot({ path: `${SHOT_DIR}/${projectName}-${name}.png` });
 }
 
@@ -19,8 +71,8 @@ test.describe('Player', () => {
   test('laedt mit Startzustand', async ({ page }, info) => {
     await open(page);
     await expect(page.getByTestId('alg')).toHaveText("RUR'U'");
-    await expect(page.getByTestId('step-back')).toBeDisabled();
-    await expect(page.getByTestId('step-forward')).toBeEnabled();
+    await expect(page.getByTestId('step-back')).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.getByTestId('step-forward')).toHaveAttribute('aria-disabled', 'false');
     await shot(page, 'start', info.project.name);
   });
 
@@ -38,7 +90,7 @@ test.describe('Player', () => {
     await expect(page.getByTestId('counter')).toHaveText('Zug 1 / 4');
     await page.getByTestId('step-back').click();
     await expect(page.getByTestId('counter')).toHaveText('Zug 0 / 4');
-    await expect(page.getByTestId('step-back')).toBeDisabled();
+    await expect(page.getByTestId('step-back')).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('Sprung zu Index 3 per Slider, Start und Ende', async ({ page }, info) => {
@@ -49,7 +101,7 @@ test.describe('Player', () => {
     await shot(page, 'jump3', info.project.name);
     await page.getByTestId('to-end').click();
     await expect(page.getByTestId('counter')).toHaveText('Zug 4 / 4');
-    await expect(page.getByTestId('step-forward')).toBeDisabled();
+    await expect(page.getByTestId('step-forward')).toHaveAttribute('aria-disabled', 'true');
     await page.getByTestId('to-start').click();
     await expect(page.getByTestId('counter')).toHaveText('Zug 0 / 4');
     await expect(page.getByTestId('slider')).toHaveValue('0');
@@ -69,9 +121,12 @@ test.describe('Player', () => {
     await expect(play).toHaveAttribute('data-playing', 'true');
     await play.click();
     await expect(play).toHaveAttribute('data-playing', 'false');
-    const frozen = await page.getByTestId('counter').textContent();
-    await page.waitForTimeout(1500);
-    await expect(page.getByTestId('counter')).toHaveText(frozen ?? '');
+    // Animation ausgelaufen (Schritt-Buttons wieder frei), danach darf sich nichts mehr aendern.
+    await expect(page.getByTestId('step-forward')).toHaveAttribute('aria-disabled', 'false');
+    const settled = await page.getByTestId('counter').textContent();
+    await frames(page, 90);
+    await expect(page.getByTestId('counter')).toHaveText(settled ?? '');
+    expect(settled).not.toBe('Zug 4 / 4');
   });
 });
 
@@ -149,14 +204,8 @@ test.describe('Mobil-Kriterien', () => {
   test('Standard-Viewport des Profils', async ({ page }) => {
     await open(page);
     const vp = page.viewportSize();
-    await checkLayout(page).catch((e: unknown) => {
-      // Auf kleinen Hochformat-Profilen darf der Wuerfel unter dem Falz liegen (Seite scrollt);
-      // dann nur Breiten- und Groessenkriterien pruefen.
-      if (!vp || vp.height >= 800) throw e;
-    });
-    const cube = await page.getByTestId('cube').boundingBox();
-    expect(cube?.width ?? 0).toBeGreaterThanOrEqual(280);
-    expect(cube?.height ?? 0).toBeGreaterThanOrEqual(280);
+    expect(vp).not.toBeNull();
+    await checkLayout(page);
   });
 
   test('Querformat 640x360', async ({ page }, info) => {
@@ -194,26 +243,42 @@ test('Player fuellt den Wuerfelbereich und rendert nicht leer', async ({ page },
     expect(Math.abs(playerBox.height - areaBox.height)).toBeLessThanOrEqual(2);
     expect(Math.abs(playerBox.width - areaBox.width)).toBeLessThanOrEqual(2);
   }
-  await page.waitForTimeout(500);
-  const png = (await page.getByTestId('cube').screenshot()).toString('base64');
   await page.getByTestId('cube').screenshot({ path: `${SHOT_DIR}/${info.project.name}-cube-only.png` });
-  const share = await page.evaluate(async (b64) => {
-    const img = new Image();
-    img.src = `data:image/png;base64,${b64}`;
-    await img.decode();
-    const c = document.createElement('canvas');
-    c.width = img.width;
-    c.height = img.height;
-    const ctx = c.getContext('2d');
-    if (!ctx) return 0;
-    ctx.drawImage(img, 0, 0);
-    const d = ctx.getImageData(0, 0, c.width, c.height).data;
-    let colored = 0;
-    for (let i = 0; i < d.length; i += 4) {
-      const r = d[i] ?? 255, g = d[i + 1] ?? 255, b = d[i + 2] ?? 255;
-      if (Math.max(r, g, b) - Math.min(r, g, b) > 60) colored++;
-    }
-    return colored / (d.length / 4);
-  }, png);
-  expect(share).toBeGreaterThan(0.05);
+  expect(await coloredShare(page)).toBeGreaterThan(MIN_COLORED_SHARE);
 });
+
+test('alle Tap-Ziele (button, input) sind mindestens 44x44 px gross', async ({ page }) => {
+  await open(page);
+  const boxes = await page.locator('button, input').evaluateAll((els) =>
+    els.map((e) => {
+      const r = e.getBoundingClientRect();
+      return { id: e.getAttribute('data-testid') ?? e.tagName, w: r.width, h: r.height };
+    }),
+  );
+  expect(boxes.length).toBeGreaterThanOrEqual(6);
+  for (const b of boxes) {
+    expect(b.w, b.id).toBeGreaterThanOrEqual(44);
+    expect(b.h, b.id).toBeGreaterThanOrEqual(44);
+  }
+});
+
+test('Steuerleiste per Touch-Tap bedienbar', async ({ page }, info) => {
+  test.skip(!info.project.use.hasTouch, 'nur Profile mit Touch');
+  await open(page);
+  const tap = async (id: string): Promise<void> => {
+    const box = await page.getByTestId(id).boundingBox();
+    expect(box, id).not.toBeNull();
+    if (box) await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+  };
+  await tap('step-forward');
+  await expect(page.getByTestId('counter')).toHaveText('Zug 1 / 4');
+  await tap('to-end');
+  await expect(page.getByTestId('counter')).toHaveText('Zug 4 / 4');
+  await tap('to-start');
+  await expect(page.getByTestId('counter')).toHaveText('Zug 0 / 4');
+  await tap('play-pause');
+  await expect(page.getByTestId('play-pause')).toHaveAttribute('data-playing', 'true');
+  await tap('play-pause');
+  await expect(page.getByTestId('play-pause')).toHaveAttribute('data-playing', 'false');
+});
+

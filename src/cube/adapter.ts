@@ -129,7 +129,7 @@ export interface CubePlayer {
    * gerade zurueckgedrehte Zug; danach `currentMove` null.
    */
   stepBackward(): void;
-  /** Springt ohne Animation zur Zuggrenze `index` (wird auf 0..total geklemmt) und pausiert. */
+  /** Springt ohne Animation zur Zuggrenze `index` (wird auf 0..total geklemmt) und pausiert. Ohne abgeschlossenes `load` ohne Wirkung. */
   jumpTo(index: number): void;
   getState(): PlayerState;
   /** Liefert eine Funktion zum Abmelden. */
@@ -144,19 +144,59 @@ const DIRECTION_FORWARDS = 1;
 const DIRECTION_BACKWARDS = -1;
 const BOUNDARY_MOVE = 'move';
 
+/**
+ * Workaround fuer cubing 0.63.8: Mit controlPanel 'none' kollabiert das innere Grid-Layout
+ * ('.wrapper' mit 'contain: size') auf Hoehe 0, die Canvas ist dann 0 px hoch und der Wuerfel
+ * unsichtbar. Das interne Element wird deshalb absolut an die Elementgroesse gebunden. Haengt am
+ * internen Klassennamen '.wrapper'; bei einem cubing-Update pruefen. Reines Zusatz-CSS, kein Patch.
+ */
+const SHADOW_LAYOUT_FIX_CSS = '.wrapper { position: absolute; inset: 0; }';
+
+/** Typisierte Huelle um die Stellen, an denen cubings markierte Typen/Enums Casts erzwingen. */
+const cubingCalls = {
+  setTimestamp(p: TwistyPlayer, ms: number | 'start' | 'end'): void {
+    // Der Setter erwartet einen intern markierten Zahlentyp (MillisecondTimestamp).
+    p.timestamp = ms as never;
+  },
+  playOneMove(p: TwistyPlayer, direction: 1 | -1): void {
+    p.controller.animationController.play({
+      direction: (direction === 1 ? DIRECTION_FORWARDS : DIRECTION_BACKWARDS) as never,
+      untilBoundary: BOUNDARY_MOVE as never,
+      autoSkipToOtherEndIfStartingAtBoundary: false,
+    });
+  },
+  startTimestamp(indexer: { indexToMoveStartTimestamp(i: never): number }, i: number): number {
+    return indexer.indexToMoveStartTimestamp(i as never);
+  },
+};
+
+/**
+ * Erzeugt den Player und haengt ihn an `host`. Die Erzeugung ist asynchron (cubing/twisty wird
+ * nachgeladen). Schlaegt sie fehl, rejecten `load`-Aufrufe mit dem Fehler; alle anderen Methoden
+ * sind dann no-ops. `destroy` waehrend des Ladens verhindert, dass der Player angehaengt wird.
+ * `jumpTo`, `stepForward` und `stepBackward` sind ohne erfolgreich abgeschlossenes `load`
+ * (getState().total === 0) ohne Wirkung. Ein spaeteres `load` ersetzt ein noch laufendes;
+ * das verdraengte Promise resolved ohne Wirkung.
+ */
 export function createPlayer(host: HTMLElement): CubePlayer {
   let moves: string[] = [];
   let starts: number[] = [];
   let end = 0;
   let timestamp = 0;
   let playing = false;
+  let loaded = false;
+  let loadGen = 0;
+  let initError: unknown = null;
+  /** Synchron gesetzt, sobald ein Schritt angestossen wird; verhindert Doppelausloesung. */
+  let stepBusy = false;
+  let stepSawPlaying = false;
   let state: PlayerState = EMPTY_STATE;
   let destroyed = false;
   let twisty: TwistyPlayer | null = null;
   let detach: Array<() => void> = [];
   const listeners = new Set<(s: PlayerState) => void>();
 
-  const recompute = (): void => {
+  const recompute = (force = false): void => {
     const { index, currentMove } = indexAtTimestamp(starts, end, timestamp);
     const next: PlayerState = {
       index,
@@ -165,6 +205,7 @@ export function createPlayer(host: HTMLElement): CubePlayer {
       currentMove: currentMove === null ? null : (moves[currentMove] ?? null),
     };
     if (
+      !force &&
       next.index === state.index &&
       next.total === state.total &&
       next.playing === state.playing &&
@@ -176,59 +217,75 @@ export function createPlayer(host: HTMLElement): CubePlayer {
     for (const cb of [...listeners]) cb(state);
   };
 
-  const ready: Promise<TwistyPlayer> = (async () => {
-    const { TwistyPlayer: Ctor } = await import('cubing/twisty');
-    const p = new Ctor({
-      puzzle: '3x3x3',
-      visualization: '3D',
-      controlPanel: 'none',
-      background: 'none',
-      hintFacelets: 'none',
-      experimentalDragInput: 'none',
-      viewerLink: 'none',
-      alg: '',
-    });
-    if (destroyed) return p;
-    // Der Player fuellt den Host-Container (Standardgroesse von cubing ist sonst fest).
-    p.style.width = '100%';
-    p.style.height = '100%';
-    // Ohne Control-Panel kollabiert cubings Grid-Layout (contain: size) auf Hoehe 0. Das innere
-    // Layout wird deshalb absolut an die Elementgroesse gebunden. Nur zusaetzliches CSS, kein Patch.
-    p.style.position = 'relative';
-    const fix = document.createElement('style');
-    fix.textContent = '.wrapper { position: absolute; inset: 0; }';
-    p.shadow.appendChild(fix);
-    host.appendChild(p);
-    const model = p.experimentalModel;
-    const onTime = (info: { timestamp: number }): void => {
-      timestamp = info.timestamp;
-      recompute();
-    };
-    const onCoarse = (info: { playing: boolean }): void => {
-      playing = info.playing;
-      recompute();
-    };
-    model.detailedTimelineInfo.addFreshListener(onTime);
-    model.coarseTimelineInfo.addFreshListener(onCoarse);
-    detach = [
-      () => model.detailedTimelineInfo.removeFreshListener(onTime),
-      () => model.coarseTimelineInfo.removeFreshListener(onCoarse),
-    ];
-    twisty = p;
-    return p;
+  const ready: Promise<TwistyPlayer | null> = (async () => {
+    try {
+      const { TwistyPlayer: Ctor } = await import('cubing/twisty');
+      const p = new Ctor({
+        puzzle: '3x3x3',
+        visualization: '3D',
+        controlPanel: 'none',
+        background: 'none',
+        hintFacelets: 'none',
+        experimentalDragInput: 'none',
+        viewerLink: 'none',
+        alg: '',
+      });
+      if (destroyed) return null;
+      // Der Player fuellt den Host-Container (Standardgroesse von cubing ist sonst fest).
+      p.style.width = '100%';
+      p.style.height = '100%';
+      p.style.position = 'relative';
+      const fix = document.createElement('style');
+      fix.textContent = SHADOW_LAYOUT_FIX_CSS;
+      p.shadow.appendChild(fix);
+      host.appendChild(p);
+      twisty = p;
+      const model = p.experimentalModel;
+      const onTime = (info: { timestamp: number }): void => {
+        timestamp = info.timestamp;
+        recompute();
+      };
+      const onCoarse = (info: { playing: boolean }): void => {
+        playing = info.playing;
+        if (playing) stepSawPlaying = true;
+        else if (stepSawPlaying) {
+          stepBusy = false;
+          stepSawPlaying = false;
+        }
+        recompute();
+      };
+      model.detailedTimelineInfo.addFreshListener(onTime);
+      model.coarseTimelineInfo.addFreshListener(onCoarse);
+      detach = [
+        () => model.detailedTimelineInfo.removeFreshListener(onTime),
+        () => model.coarseTimelineInfo.removeFreshListener(onCoarse),
+      ];
+      return p;
+    } catch (e) {
+      initError = e;
+      if (twisty) (twisty as TwistyPlayer).remove();
+      twisty = null;
+      return null;
+    }
   })();
 
-  const animation = (p: TwistyPlayer) => p.controller.animationController;
+  const resetStep = (): void => {
+    stepBusy = false;
+    stepSawPlaying = false;
+  };
 
   const withPlayer = (fn: (p: TwistyPlayer) => void): void => {
     void ready.then((p) => {
-      if (!destroyed) fn(p);
+      if (p && !destroyed) fn(p);
     });
   };
 
-  const setTimestamp = (p: TwistyPlayer, ms: number | 'start' | 'end'): void => {
-    // Der Setter erwartet einen intern markierten Zahlentyp (MillisecondTimestamp).
-    p.timestamp = ms as never;
+  const step = (direction: 1 | -1): void => {
+    if (!loaded || stepBusy || state.playing) return;
+    if (direction === 1 ? state.index >= state.total : state.index <= 0) return;
+    stepBusy = true;
+    stepSawPlaying = false;
+    withPlayer((p) => cubingCalls.playOneMove(p, direction));
   };
 
   return {
@@ -236,54 +293,49 @@ export function createPlayer(host: HTMLElement): CubePlayer {
       const normalizedMoves = parseMoves(alg);
       const normalizedAlg = normalizedMoves.join(' ');
       const normalizedSetup = new Alg(setup).toString();
+      const gen = ++loadGen;
       const p = await ready;
-      if (destroyed) return;
-      animation(p).pause();
+      if (!p) {
+        if (destroyed) return;
+        throw initError instanceof Error ? initError : new Error('cubing/twisty konnte nicht geladen werden');
+      }
+      if (destroyed || gen !== loadGen) return;
+      p.controller.animationController.pause();
+      resetStep();
       p.experimentalSetupAlg = normalizedSetup;
       p.alg = normalizedAlg;
-      setTimestamp(p, 'start');
+      cubingCalls.setTimestamp(p, 'start');
       const model = p.experimentalModel;
       const indexer = await model.indexer.get();
+      if (destroyed || gen !== loadGen) return;
       const range = await model.timeRange.get();
+      if (destroyed || gen !== loadGen) return;
       const n = indexer.numAnimatedLeaves();
       if (n !== normalizedMoves.length) {
         throw new Error(`Zeitleiste inkonsistent: ${n} Animationsschritte, ${normalizedMoves.length} Zuege`);
       }
       moves = normalizedMoves;
-      starts = Array.from({ length: n }, (_, i) => indexer.indexToMoveStartTimestamp(i as never));
+      starts = Array.from({ length: n }, (_, i) => cubingCalls.startTimestamp(indexer, i));
       end = range.end;
       timestamp = range.start;
       playing = false;
-      state = { ...EMPTY_STATE, total: -1 };
-      recompute();
+      loaded = true;
+      recompute(true);
     },
     play: () => withPlayer((p) => p.play()),
     pause: () => withPlayer((p) => p.pause()),
     togglePlay: () => withPlayer((p) => p.togglePlay()),
-    stepForward: () =>
+    stepForward: () => step(1),
+    stepBackward: () => step(-1),
+    jumpTo: (index) => {
+      if (!loaded) return;
       withPlayer((p) => {
-        if (state.playing || state.index >= state.total) return;
-        animation(p).play({
-          direction: DIRECTION_FORWARDS as never,
-          untilBoundary: BOUNDARY_MOVE as never,
-          autoSkipToOtherEndIfStartingAtBoundary: false,
-        });
-      }),
-    stepBackward: () =>
-      withPlayer((p) => {
-        if (state.playing || state.index <= 0) return;
-        animation(p).play({
-          direction: DIRECTION_BACKWARDS as never,
-          untilBoundary: BOUNDARY_MOVE as never,
-          autoSkipToOtherEndIfStartingAtBoundary: false,
-        });
-      }),
-    jumpTo: (index) =>
-      withPlayer((p) => {
-        animation(p).pause();
+        p.controller.animationController.pause();
+        resetStep();
         const i = clampIndex(index, starts.length);
-        setTimestamp(p, i === 0 ? 'start' : i >= starts.length ? 'end' : timestampAtIndex(starts, end, i));
-      }),
+        cubingCalls.setTimestamp(p, i === 0 ? 'start' : i >= starts.length ? 'end' : timestampAtIndex(starts, end, i));
+      });
+    },
     getState: () => state,
     onChange(cb) {
       listeners.add(cb);
@@ -297,7 +349,7 @@ export function createPlayer(host: HTMLElement): CubePlayer {
       for (const d of detach) d();
       detach = [];
       if (twisty) {
-        animation(twisty).pause();
+        twisty.controller.animationController.pause();
         twisty.remove();
         twisty = null;
       }

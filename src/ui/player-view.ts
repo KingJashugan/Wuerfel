@@ -38,12 +38,12 @@ function el<K extends keyof HTMLElementTagNameMap>(
 type IconName = 'first' | 'back' | 'play' | 'pause' | 'next' | 'last';
 
 const ICON_PATHS: Record<IconName, string> = {
-  first: 'M6 5h2.5v14H6zM20 5v14L9.5 12z',
+  first: 'M3 5h2v14H3zM13 5v14L5.5 12zM21 5v14L13.5 12z',
   back: 'M3 5h2v14H3zM19 5v14L8.5 12z',
   play: 'M7 4.5v15L19.5 12z',
   pause: 'M6.5 5h4v14h-4zM13.5 5h4v14h-4z',
   next: 'M5 5v14l10.5-7zM19 5h2v14h-2z',
-  last: 'M15.5 5H18v14h-2.5zM4 5v14l10.5-7z',
+  last: 'M19 5h2v14h-2zM11 5v14l7.5-7zM3 5v14l7.5-7z',
 };
 
 /** Ersetzt den Inhalt des Buttons durch ein Inline-SVG (kein Emoji-Rendering). */
@@ -59,6 +59,10 @@ function setIcon(b: HTMLElement, name: IconName): void {
   path.setAttribute('d', ICON_PATHS[name]);
   svg.appendChild(path);
   b.replaceChildren(svg);
+}
+
+function setBlocked(b: HTMLElement, blocked: boolean): void {
+  b.setAttribute('aria-disabled', String(blocked));
 }
 
 function button(parent: HTMLElement, id: string, label: string, icon: IconName): HTMLButtonElement {
@@ -98,7 +102,9 @@ export async function mountPlayerView(root: HTMLElement, opts: PlayerViewOptions
   const status = el('div', 'status', panel);
   const counter = el('span', 'counter', status);
   counter.dataset['testid'] = 'counter';
-  counter.setAttribute('aria-live', 'polite');
+  // Eigene Live-Region: Ansage nur bei manueller Navigation, nicht bei jedem Zug waehrend des Abspielens.
+  const live = el('span', 'sr-only', status);
+  live.setAttribute('aria-live', 'polite');
   const current = el('span', 'current-move', status);
   current.dataset['testid'] = 'current-move';
 
@@ -129,13 +135,10 @@ export async function mountPlayerView(root: HTMLElement, opts: PlayerViewOptions
     return s;
   });
 
-  let player: CubePlayer;
-  try {
-    player = createPlayer(cubeArea);
-  } catch {
-    showNotice(root, 'Die 3D-Ansicht konnte nicht gestartet werden.');
-    return () => undefined;
-  }
+  const player: CubePlayer = createPlayer(cubeArea);
+  // Bedienung erst nach fertigem load(); vorher wuerde jumpTo/Schritt ins Leere laufen.
+  let ready = false;
+  slider.disabled = true;
 
   const render = (s: PlayerState): void => {
     const total = Math.max(s.total, 0);
@@ -150,12 +153,17 @@ export async function mountPlayerView(root: HTMLElement, opts: PlayerViewOptions
     bPlay.setAttribute('aria-label', label);
     bPlay.title = label;
     bPlay.dataset['playing'] = String(s.playing);
-    // Schritte sind waehrend einer laufenden Zuganimation gesperrt (sonst gehen Taps verloren).
     const animating = s.currentMove !== null;
-    bStart.disabled = s.index === 0 && !animating;
-    bEnd.disabled = s.index >= total;
-    bBack.disabled = animating || s.index === 0;
-    bFwd.disabled = animating || s.index >= total;
+    // aria-disabled statt disabled: Der Fokus bleibt auf dem Button. Klicks werden in guard() ignoriert.
+    // Waehrend einer laufenden Animation (playing, auch bei Einzelschritten) sind Schritte gesperrt, sonst
+    // gehen Taps verloren. Nach Pause mitten im Zug bleibt Schritt vor/zurueck moeglich (beendet den Zug).
+    const busy = animating && s.playing;
+    setBlocked(bStart, !ready || (s.index === 0 && !animating));
+    setBlocked(bEnd, !ready || s.index >= total);
+    setBlocked(bBack, !ready || busy || (s.index === 0 && !animating));
+    setBlocked(bFwd, !ready || busy || (s.index >= total && !animating));
+    setBlocked(bPlay, !ready);
+    if (!s.playing && !animating) live.textContent = `Zug ${s.index} von ${total}`;
     const active = s.currentMove !== null ? s.index : s.index - 1;
     spans.forEach((sp, i) => {
       const on = i === active;
@@ -167,17 +175,24 @@ export async function mountPlayerView(root: HTMLElement, opts: PlayerViewOptions
   };
 
   const unsub = player.onChange(render);
-  bStart.addEventListener('click', () => player.jumpTo(0));
-  bBack.addEventListener('click', () => player.stepBackward());
-  bPlay.addEventListener('click', () => player.togglePlay());
-  bFwd.addEventListener('click', () => player.stepForward());
-  bEnd.addEventListener('click', () => player.jumpTo(moves.length));
-  slider.addEventListener('input', () => player.jumpTo(Number(slider.value)));
+  const guard = (b: HTMLElement, fn: () => void): void =>
+    b.addEventListener('click', () => {
+      if (b.getAttribute('aria-disabled') !== 'true') fn();
+    });
+  guard(bStart, () => player.jumpTo(0));
+  guard(bBack, () => player.stepBackward());
+  guard(bPlay, () => player.togglePlay());
+  guard(bFwd, () => player.stepForward());
+  guard(bEnd, () => player.jumpTo(moves.length));
+  slider.addEventListener('input', () => {
+    if (ready) player.jumpTo(Number(slider.value));
+  });
   render(player.getState());
 
   try {
     await player.load(opts.setup, opts.alg);
-  } catch {
+  } catch (err) {
+    console.error(err);
     unsub();
     player.destroy();
     showNotice(
@@ -186,6 +201,9 @@ export async function mountPlayerView(root: HTMLElement, opts: PlayerViewOptions
     );
     return () => undefined;
   }
+  ready = true;
+  slider.disabled = false;
+  render(player.getState());
   view.dataset['ready'] = 'true';
 
   return () => {
