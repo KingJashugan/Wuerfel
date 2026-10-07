@@ -1,0 +1,52 @@
+{
+  "typ": "algorithmisch",
+  "id": "phase-4-gelbes-kreuz",
+  "phase": 4,
+  "titel": "Gelbes Kreuz",
+  "ziel": {
+    "text": "Auf der oberen Fläche bilden die vier gelben Kantensteine ein Kreuz, d. h. alle vier Kanten zeigen mit Gelb nach oben. Dass die Seitenfarben noch nicht zu den Mitten passen, ist egal; die ersten beiden Schichten bleiben vollständig gelöst. Von oben gesehen kann das gelbe Muster ein Punkt (nur der Mittelstein), ein Winkel (zwei benachbarte Kanten, L-Form), eine Linie (zwei gegenüberliegende Kanten) oder schon das Kreuz sein.",
+    "erhalten": ["zweite-schicht"],
+    "erreicht": ["gelbes-kreuz"],
+    "aufTolerant": false
+  },
+  "algorithmus": {
+    "name": "Gelbes Kreuz bilden",
+    "zuege": "F R U R' U' F'",
+    "trigger": [
+      { "name": "F (Auslöser)", "zuege": "F", "erklaerung": "Dreht die Vorderseite im Uhrzeigersinn. Es ist der Anfang eines Rahmens F ... F', in den der Sexy Move eingebettet ist." },
+      { "name": "Sexy Move", "zuege": "R U R' U'", "erklaerung": "Der vierstellige Trigger R U R' U' kennst du aus Phase 2. Er bildet hier den Kern des Algorithmus, während die Vorderseite gedreht bleibt." },
+      { "name": "F' (Schließer)", "zuege": "F'", "erklaerung": "Dreht die Vorderseite zurück und schließt den Rahmen, so dass die erste und die zweite Schicht wieder heil sind." }
+    ],
+    "schritte": [
+      { "bereich": { "von": 0, "bis": 1 }, "text": "F öffnet den Rahmen: Die Vorderseite wird gedreht." },
+      { "bereich": { "von": 1, "bis": 5 }, "text": "Der Sexy Move R U R' U' wirkt in diesem gedrehten Zustand und verändert, welche Kanten oben gelb sind." },
+      { "bereich": { "von": 5, "bis": 6 }, "text": "F' schließt den Rahmen und stellt die erste und zweite Schicht wieder her." }
+    ]
+  },
+  "faelle": [
+    {
+      "id": "linie",
+      "name": "Linie (waagerecht)",
+      "erkennung": "Von oben siehst du eine gelbe Linie von links nach rechts: der gelbe Mittelstein und die Kanten links und rechts zeigen Gelb nach oben. Dann reicht der Algorithmus einmal.",
+      "loesung": "F R U R' U' F'"
+    },
+    {
+      "id": "linie-senkrecht",
+      "name": "Linie (senkrecht)",
+      "erkennung": "Die gelbe Linie läuft von vorne nach hinten statt von links nach rechts. Dreh die obere Schicht mit U um eine Vierteldrehung, bis sie waagerecht liegt, und wende den Algorithmus an. Merke: Bildet sich nach einem Durchgang noch kein Kreuz, dreh die obere Schicht passend und wiederhole den Algorithmus.",
+      "loesung": "U F R U R' U' F'"
+    },
+    {
+      "id": "winkel",
+      "name": "Winkel (L-Form)",
+      "erkennung": "Zwei benachbarte gelbe Kanten bilden ein L. Dreh U, bis das L hinten links liegt (die gelben Kanten oben hinten und oben links); dann Algorithmus, U, Algorithmus. Die Fall-Lösung beginnt mit U2, das den Winkel in die Ausgangslage hinten links bringt; danach folgen Algorithmus, U und noch einmal der Algorithmus.",
+      "loesung": "U2 F R U R' U' F' U F R U R' U' F'"
+    },
+    {
+      "id": "punkt",
+      "name": "Punkt",
+      "erkennung": "Nur der gelbe Mittelstein ist oben gelb, keine der vier Kanten. Wende den Algorithmus dreimal an, dazwischen jeweils U2 (halbe Drehung der oberen Schicht): Nach drei Durchgängen ist das Kreuz fertig.",
+      "loesung": "F R U R' U' F' U2 F R U R' U' F' U2 F R U R' U' F'"
+    }
+  ]
+}

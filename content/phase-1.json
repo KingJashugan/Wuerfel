@@ -1,0 +1,39 @@
+{
+  "typ": "intuitiv",
+  "id": "phase-1-weisses-kreuz",
+  "phase": 1,
+  "titel": "Weißes Kreuz",
+  "ziel": {
+    "text": "Die vier weißen Kantensteine bilden unten ein Kreuz. Zusätzlich passt die zweite Farbe jeder Kante zur Mittelfarbe der Seitenfläche, an der sie liegt.",
+    "erhalten": [],
+    "erreicht": ["kreuz-unten"],
+    "aufTolerant": false
+  },
+  "prinzip": "Ein Kreuz ist hier das Plus-Muster aus dem weißen Mittelstein und den vier weißen Kantensteinen (Kanten sind die Steine mit zwei Farben). Es gibt keinen festen Algorithmus: Suche eine weiße Kante, überlege, wo sie hinsoll, und bewege sie mit wenigen Drehungen dorthin, ohne bereits eingebaute Kanten zu zerstören. Faustregel: Dreh zuerst die Fläche, die die Kante blockiert, nach oben aus dem Weg, positioniere die Kante in der gelben Schicht über ihrem Platz und drehe dann die Seitenfläche, bis sie unten einrastet. Die Beispiele zeigen einfache Situationen; die Lösungen sind Vorschläge, andere kurze Wege sind genauso richtig.",
+  "beispiele": [
+    {
+      "id": "kante-oben",
+      "beschreibung": "Eine weiße Kante liegt oben direkt über ihrem Platz an der Vorderseite, mit Weiß nach oben. Eine halbe Drehung der Vorderseite bringt sie nach unten.",
+      "setup": "F2",
+      "loesung": "F2",
+      "schritte": [{ "bereich": { "von": 0, "bis": 1 }, "text": "F2 dreht die Vorderseite um 180 Grad: Die weiße Kante wandert von oben nach unten und sitzt am richtigen Platz." }]
+    },
+    {
+      "id": "kante-seite",
+      "beschreibung": "Eine weiße Kante ist beim Verdrehen der Vorderseite in die mittlere Schicht gerutscht. Die Gegendrehung der Vorderseite bringt sie zurück an ihren Platz.",
+      "setup": "F",
+      "loesung": "F'",
+      "schritte": [{ "bereich": { "von": 0, "bis": 1 }, "text": "F' dreht die Vorderseite zurück: Die Kante kehrt an ihren Platz im Kreuz zurück." }]
+    },
+    {
+      "id": "kante-mehrere-zuege",
+      "beschreibung": "Das Kreuz wurde mit mehreren Zügen auseinandergerissen. Prinzip: Mach die Zugfolge rückwärts, indem du jeden Zug umkehrst und in umgekehrter Reihenfolge ausführst.",
+      "setup": "F U R' U'",
+      "loesung": "U R U' F'",
+      "schritte": [
+        { "bereich": { "von": 0, "bis": 3 }, "text": "U R U' holt die Kante wieder in die Position, aus der sie weggedreht wurde." },
+        { "bereich": { "von": 3, "bis": 4 }, "text": "F' dreht die Vorderseite zurück und setzt die Kante ins Kreuz." }
+      ]
+    }
+  ]
+}

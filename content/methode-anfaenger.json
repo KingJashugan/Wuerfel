@@ -1,0 +1,13 @@
+{
+  "id": "anfaenger",
+  "orientierung": "Alle Zugfolgen gelten in der Lernlage: Weiß unten, Grün vorne, Gelb oben. Die Züge sind in Singmaster-Notation geschrieben (R, L, U, D, F, B; ein Strich ' bedeutet gegen den Uhrzeigersinn, eine 2 eine halbe Drehung; die Drehrichtung ist immer der Blick auf die jeweilige Fläche von außen). Beim Anzeigen wird die Lage durch die Drehung z2 aus der Grundstellung hergestellt; diese Drehung steht deshalb nicht in den Zugfolgen.",
+  "phasen": [
+    { "nr": 1, "id": "phase-1-weisses-kreuz", "titel": "Weißes Kreuz", "typ": "intuitiv", "datei": "phase-1.json" },
+    { "nr": 2, "id": "phase-2-weisse-ecken", "titel": "Weiße Ecken", "typ": "intuitiv", "datei": "phase-2.json" },
+    { "nr": 3, "id": "phase-3-mittlere-kanten", "titel": "Mittlere Kanten", "typ": "algorithmisch", "datei": "phase-3.json" },
+    { "nr": 4, "id": "phase-4-gelbes-kreuz", "titel": "Gelbes Kreuz", "typ": "algorithmisch", "datei": "phase-4.json" },
+    { "nr": 5, "id": "phase-5-gelbe-kanten", "titel": "Gelbe Kanten positionieren", "typ": "algorithmisch", "datei": "phase-5.json" },
+    { "nr": 6, "id": "phase-6-gelbe-ecken-positionieren", "titel": "Gelbe Ecken positionieren", "typ": "algorithmisch", "datei": "phase-6.json" },
+    { "nr": 7, "id": "phase-7-gelbe-ecken-orientieren", "titel": "Gelbe Ecken orientieren", "typ": "algorithmisch", "datei": "phase-7.json" }
+  ]
+}

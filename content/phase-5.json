@@ -1,0 +1,46 @@
+{
+  "typ": "algorithmisch",
+  "id": "phase-5-gelbe-kanten",
+  "phase": 5,
+  "titel": "Gelbe Kanten positionieren",
+  "ziel": {
+    "text": "Die vier gelben Kanten sitzen an ihrem richtigen Platz: Ihre zweite Farbe passt zur Mitte der jeweiligen Seitenfläche. Das gelbe Kreuz oben bleibt erhalten, ebenso die unteren beiden Schichten. Die gelben Ecken sind in dieser Phase noch beliebig. Zwischen den Algorithmus-Durchgängen darfst du die obere Schicht mit U drehen; ein solcher kleiner Korrekturzug am Ende heißt AUF (Adjust U Face, d. h. die obere Fläche ausrichten). Hier ist das abschließende U im Algorithmus schon als AUF enthalten.",
+    "erhalten": ["gelbes-kreuz"],
+    "erreicht": ["gelbe-kanten-position"],
+    "aufTolerant": false
+  },
+  "algorithmus": {
+    "name": "Zwei Kanten tauschen (Sune mit AUF)",
+    "zuege": "R U R' U R U2 R' U",
+    "trigger": [
+      { "name": "Sune-Anfang (R U R')", "zuege": "R U R'", "erklaerung": "Der erste Teil der Sune. Die Sune ist ein bekannter Algorithmus aus sieben Zügen, R U R' U R U2 R', der in der Anfängermethode meist die gelben Ecken orientiert; hier wird er für eine andere Aufgabe genutzt." },
+      { "name": "Sune-Ende (U R U2 R')", "zuege": "U R U2 R'", "erklaerung": "Der zweite Teil der Sune. Zusammen mit dem ersten Teil wird so die obere Schicht verändert, ohne die untere zu zerstören." },
+      { "name": "AUF (U)", "zuege": "U", "erklaerung": "Ein letztes U richtet die obere Schicht aus. Wegen dieses Zuges sitzen die Kanten nach dem Algorithmus in der gewünschten Lage." }
+    ],
+    "schritte": [
+      { "bereich": { "von": 0, "bis": 3 }, "text": "Sune-Anfang: R U R'." },
+      { "bereich": { "von": 3, "bis": 7 }, "text": "Sune-Ende: U R U2 R'." },
+      { "bereich": { "von": 7, "bis": 8 }, "text": "AUF: Das abschließende U richtet die obere Schicht aus." }
+    ]
+  },
+  "faelle": [
+    {
+      "id": "zwei-benachbarte",
+      "name": "Zwei benachbarte Kanten vertauscht",
+      "erkennung": "Die Kanten vorne und links sind vertauscht, die Kanten hinten und rechts sitzen schon richtig. (Gedreht wird die obere Schicht so, dass die zwei richtigen Kanten hinten und rechts liegen.) Dann einmal der Algorithmus.",
+      "loesung": "R U R' U R U2 R' U"
+    },
+    {
+      "id": "eine-richtig",
+      "name": "Genau eine Kante richtig, drei im Kreis vertauscht",
+      "erkennung": "Nur eine gelbe Kante passt zu ihrer Mitte, hier die Kante links; die anderen drei sitzen im Kreis falsch. Der Algorithmus samt abschließendem AUF löst diesen Fall: Wende ihn an und ergänze ein weiteres U.",
+      "loesung": "R U R' U R U2 R' U U"
+    },
+    {
+      "id": "zwei-gegenueber",
+      "name": "Zwei gegenüberliegende Kanten vertauscht",
+      "erkennung": "Die Kanten vorne und hinten sind vertauscht; die Kanten links und rechts sitzen richtig. Zwei Kanten gegenüber lassen sich nicht in einem Durchgang tauschen: Wende den Algorithmus an, dreh U2, wende ihn noch einmal an und schließe mit U'.",
+      "loesung": "R U R' U R U2 R' U U2 R U R' U R U2 R' U U'"
+    }
+  ]
+}

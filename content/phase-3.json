@@ -1,0 +1,38 @@
+{
+  "typ": "algorithmisch",
+  "id": "phase-3-mittlere-kanten",
+  "phase": 3,
+  "titel": "Mittlere Kanten",
+  "ziel": {
+    "text": "Die vier Kanten der mittleren Schicht (Steine ohne Gelb) sitzen an ihrem Platz und stimmen mit den Mittelsteinen überein. Die Fälle hier setzen jeweils die letzte noch fehlende Kante ein; im echten Lösen machst du dasselbe nacheinander für jede Kante. Voraussetzung: Die untere Schicht (Weiß unten) ist gelöst und darf nicht kaputtgehen.",
+    "erhalten": ["erste-schicht"],
+    "erreicht": ["zweite-schicht"],
+    "aufTolerant": false
+  },
+  "algorithmus": {
+    "name": "Kante nach rechts einsetzen",
+    "zuege": "U R U' R' U' F' U F",
+    "trigger": [
+      { "name": "Anti-Sexy-Move", "zuege": "U R U' R'", "erklaerung": "Das ist der Sexy Move R U R' U' rückwärts gelesen (Umkehrung der Zugfolge). Er bereitet den Platz vorne rechts vor, an den die Kante gehört." },
+      { "name": "Vorderseiten-Trigger", "zuege": "U' F' U F", "erklaerung": "Spiegelbildlich zum ersten Trigger, aber an der Vorderseite: Er setzt die vorbereitete Kante vorne rechts ein; danach ist die untere Schicht wieder komplett." }
+    ],
+    "schritte": [
+      { "bereich": { "von": 0, "bis": 4 }, "text": "Anti-Sexy-Move: Der Platz vorne rechts wird freigemacht." },
+      { "bereich": { "von": 4, "bis": 8 }, "text": "Vorderseiten-Trigger: Die Kante rastet in der mittleren Schicht ein; die untere Schicht ist danach wieder komplett." }
+    ]
+  },
+  "faelle": [
+    {
+      "id": "kante-rechts",
+      "name": "Kante nach rechts",
+      "erkennung": "Suche in der gelben Schicht eine Kante ohne Gelb. Dreh U, bis ihre vordere Farbe zur Mitte der Vorderseite passt. Zeigt die obere Farbe der Kante zur rechten Seitenmitte, muss die Kante nach vorne rechts: benutze den Algorithmus nach rechts.",
+      "loesung": "U R U' R' U' F' U F"
+    },
+    {
+      "id": "kante-links",
+      "name": "Kante nach links",
+      "erkennung": "Gleiche Ausgangslage: Kante ohne Gelb, vordere Farbe passt zur vorderen Mitte. Zeigt die obere Farbe zur linken Seitenmitte, muss die Kante nach vorne links: benutze den Spiegel-Algorithmus nach links (U' L' U L U F U' F'). Er ist das Spiegelbild des Rechts-Algorithmus: jeder Zug wird gespiegelt (R wird zu L', U zu U', F' zu F).",
+      "loesung": "U' L' U L U F U' F'"
+    }
+  ]
+}

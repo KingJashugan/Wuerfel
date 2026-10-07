@@ -6,7 +6,7 @@ const ALLOWED = '../src/cube/adapter.ts';
 const IMPORT_RE = /(?:\bfrom|\bimport|\brequire)\s*\(?\s*['"`](?:@vscubing\/)?cubing(?:\/[^'"`]*)?['"`]/;
 
 // Alle Quelldateien als Rohtext (Vite-Feature, kein Node-Dateizugriff noetig).
-const sources = import.meta.glob('../{src,tests}/**/*.{ts,tsx,js,jsx,mjs,vue,svelte}', {
+const sources = import.meta.glob('../{src,tests,content}/**/*.{ts,tsx,js,jsx,mjs,vue,svelte}', {
   query: '?raw',
   import: 'default',
   eager: true,
@@ -31,7 +31,7 @@ describe('Import-Regel: nur adapter.ts importiert cubing', () => {
     expect(keys.some((k) => k.startsWith('../src/cube/'))).toBe(true);
   });
 
-  it('keine andere Datei unter src/ oder tests/ importiert cubing', () => {
+  it('keine andere Datei unter src/, tests/ oder content/ importiert cubing', () => {
     const offenders = Object.entries(sources)
       .filter(([path]) => path !== ALLOWED)
       .filter(([, text]) => IMPORT_RE.test(text))

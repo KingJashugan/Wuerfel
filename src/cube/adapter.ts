@@ -8,8 +8,13 @@
  * nennt den laufenden Zug.
  */
 import { Alg, Move } from 'cubing/alg';
+import type { KPattern, KPuzzle } from 'cubing/kpuzzle';
 import { cube3x3x3 } from 'cubing/puzzles';
 import type { TwistyPlayer } from 'cubing/twisty';
+import { ORIENTATION_SETUP, REGION_SLOTS, type CubeRegion } from './regions';
+
+export { CUBE_REGIONS, ORIENTATION_SETUP } from './regions';
+export type { CubeRegion } from './regions';
 
 // ---------------------------------------------------------------------------
 // Algorithmen: parsen, invertieren, vergleichen
@@ -60,6 +65,128 @@ export async function statesEqual(setup: string, a: string, b: string): Promise<
   return pa.isIdentical(pb);
 }
 
+
+// ---------------------------------------------------------------------------
+// Orientierung (Weiss unten, Gruen vorne) und Faellepruefung
+// ---------------------------------------------------------------------------
+
+/**
+ * Stellt die Orientierung (z2) genau einmal voran. Beginnt `setup` bereits mit z2, bleibt es
+ * unveraendert (idempotent). Der Player nutzt das als nicht animiertes Setup.
+ */
+export function withOrientation(setup: string): string {
+  const first = parseMoves(setup)[0];
+  if (first === ORIENTATION_SETUP) return setup.trim();
+  return `${ORIENTATION_SETUP} ${setup}`.trim();
+}
+
+/** Setup fuer einen Fall: Orientierung + Inverses der Loesung. */
+export function caseSetup(loesung: string): string {
+  return withOrientation(invert(loesung));
+}
+
+const WHOLE_CUBE_ROTATIONS = ['', 'x', 'x2', "x'", 'z', "z'"].flatMap((a) => ['', 'y', 'y2', "y'"].map((b) => `${a} ${b}`.trim()));
+
+/**
+ * Semantik der kpuzzle-Daten (cubing 0.63.8, 3x3x3), gegen state.ts-Facelets verifiziert:
+ * - Orbits EDGES (12 Plaetze, Orientierung mod 2), CORNERS (8, mod 3), CENTERS (6).
+ * - patternData[orbit].pieces[slot] = Teil, das auf dem Platz sitzt; .orientation[slot] = dessen Drehung.
+ * - Kantenplaetze: UF UR UB UL DF DR DB DL FR FL BR BL; Eckenplaetze: UFR URB UBL ULF DRF DFL DLB DBR.
+ * - Referenz = Standardmuster nach z2 (Teile 'wandern' mit, Orientierung bleibt 0). Der Vergleich
+ *   erfolgt, nachdem eine ganze Wuerfeldrehung die Mitten wieder in Referenzlage gebracht hat.
+ */
+/** Referenz (Standardmuster nach z2) und Mitten-Referenz, einmal berechnet. */
+let referencePromise: Promise<{ kpuzzle: KPuzzle; ref: KPattern; refCenters: readonly number[] }> | null = null;
+function reference() {
+  referencePromise ??= cube3x3x3.kpuzzle().then((kpuzzle) => {
+    const ref = kpuzzle.defaultPattern().applyAlg(new Alg(ORIENTATION_SETUP));
+    return { kpuzzle, ref, refCenters: ref.patternData['CENTERS']!.pieces };
+  });
+  return referencePromise;
+}
+
+async function canonicalPatternAfter(setup: string, alg: string, extra = '') {
+  const { kpuzzle, ref, refCenters } = await reference();
+  const start = kpuzzle.defaultPattern().applyAlg(new Alg(withOrientation(setup))).applyAlg(new Alg(alg));
+  for (const rot of WHOLE_CUBE_ROTATIONS) {
+    const p = start.applyAlg(new Alg(rot));
+    const c = p.patternData['CENTERS']!.pieces;
+    if (c.every((v, i) => v === refCenters[i])) return { ref, pattern: p.applyAlg(new Alg(extra)) };
+  }
+  throw new Error('Mittelsteine lassen sich keiner Wuerfeldrehung zuordnen');
+}
+
+type PatternPair = Awaited<ReturnType<typeof canonicalPatternAfter>>;
+
+function violatedRegions({ ref, pattern }: PatternPair, regions: readonly CubeRegion[]): CubeRegion[] {
+  const E = pattern.patternData['EDGES']!;
+  const C = pattern.patternData['CORNERS']!;
+  const rE = ref.patternData['EDGES']!;
+  const rC = ref.patternData['CORNERS']!;
+  const edgeOk = (s: number): boolean => E.pieces[s] === rE.pieces[s] && E.orientation[s] === rE.orientation[s];
+  const cornerOk = (s: number): boolean => C.pieces[s] === rC.pieces[s] && C.orientation[s] === rC.orientation[s];
+  return regions.filter((region) => {
+    const slots = REGION_SLOTS[region];
+    const good =
+      slots.edges.every(edgeOk) &&
+      slots.edgeOrientation.every((s) => E.orientation[s] === rE.orientation[s]) &&
+      slots.corners.every(cornerOk) &&
+      slots.cornerPosition.every((s) => C.pieces[s] === rC.pieces[s]);
+    return !good;
+  });
+}
+
+/**
+ * Liefert die Bereiche aus `regions`, die nach `setup` + `alg` NICHT erfuellt sind (leer = alle erfuellt).
+ * `setup` wird mit Orientierung z2 versehen (falls nicht vorhanden). Ganze Wuerfeldrehungen im Algorithmus
+ * werden herausgerechnet.
+ */
+export async function regionsSatisfied(setup: string, alg: string, regions: readonly CubeRegion[]): Promise<CubeRegion[]> {
+  return violatedRegions(await canonicalPatternAfter(setup, alg), regions);
+}
+
+export type Auf = '' | 'U' | 'U2' | "U'";
+
+export interface CaseCheckInput {
+  /** Setup des Falls (z. B. caseSetup(loesung)). */
+  setup: string;
+  alg: string;
+  /** Bereiche, die nach dem Algorithmus weiterhin erfuellt sein muessen. */
+  erhalten: readonly CubeRegion[];
+  /** Bereiche, die nach dem Algorithmus erfuellt sein muessen. */
+  erreicht: readonly CubeRegion[];
+  /** Erlaubt ein abschliessendes U, U2 oder U' (AUF) nach dem Algorithmus. */
+  aufTolerant: boolean;
+}
+
+export interface CaseCheck {
+  ok: boolean;
+  /** Der noetige abschliessende Zug; '' wenn keiner noetig war oder nicht tolerant. */
+  auf: Auf;
+  /** Verletzte Bereiche (beim besten Versuch; bei ok leer). */
+  verletzt: CubeRegion[];
+  /** Waren alle `erreicht`-Bereiche schon vor dem Algorithmus erfuellt? */
+  vorherSchonErreicht: boolean;
+}
+
+export async function checkSolvesCase(input: CaseCheckInput): Promise<CaseCheck> {
+  const required = [...new Set([...input.erhalten, ...input.erreicht])];
+  const aufs: Auf[] = input.aufTolerant ? ['', 'U', 'U2', "U'"] : [''];
+  const attempts: Array<{ auf: Auf; verletzt: CubeRegion[] }> = [];
+  for (const auf of aufs) {
+    const verletzt = violatedRegions(await canonicalPatternAfter(input.setup, input.alg, auf), required);
+    attempts.push({ auf, verletzt });
+    if (verletzt.length === 0) break;
+  }
+  const result = attempts.reduce((a, b) => (b.verletzt.length < a.verletzt.length ? b : a));
+  const before = await regionsSatisfied(input.setup, '', input.erreicht);
+  return {
+    ok: result.verletzt.length === 0,
+    auf: result.verletzt.length === 0 ? result.auf : '',
+    verletzt: result.verletzt,
+    vorherSchonErreicht: input.erreicht.length > 0 && before.length === 0,
+  };
+}
 // ---------------------------------------------------------------------------
 // Reine Index-/Zeitlogik (ohne WebGL testbar)
 // ---------------------------------------------------------------------------
@@ -292,7 +419,7 @@ export function createPlayer(host: HTMLElement): CubePlayer {
     async load(setup, alg) {
       const normalizedMoves = parseMoves(alg);
       const normalizedAlg = normalizedMoves.join(' ');
-      const normalizedSetup = new Alg(setup).toString();
+      const normalizedSetup = new Alg(withOrientation(setup)).toString();
       const gen = ++loadGen;
       const p = await ready;
       if (!p) {

@@ -1,0 +1,44 @@
+{
+  "typ": "intuitiv",
+  "id": "phase-2-weisse-ecken",
+  "phase": 2,
+  "titel": "Weiße Ecken",
+  "ziel": {
+    "text": "Die vier weißen Ecksteine sitzen unten an ihrem Platz und mit Weiß nach unten. Zusammen mit dem Kreuz ist damit die ganze untere Schicht (erste Schicht) gelöst und alle Seitenfarben passen zu den Mittelsteinen.",
+    "erhalten": ["kreuz-unten"],
+    "erreicht": ["erste-schicht"],
+    "aufTolerant": false
+  },
+  "prinzip": "Eine Ecke ist ein Stein mit drei Farben. Drehe die obere Schicht (U), bis eine weiße Ecke genau über dem Platz steht, an den sie gehört. Dann wiederholst du einen kurzen Block, den Sexy Move: R U R' U'. Ein solcher Block, der oft hintereinander verwendet wird, heißt Trigger. Der Sexy Move bringt eine Ecke schrittweise an ihren Platz; je nach Lage der Ecke braucht es 1, 3 oder 5 Wiederholungen (siehe Beispiele). Nach 6 Wiederholungen wäre alles wieder wie am Anfang; wiederhole also nur, bis die Ecke unten richtig sitzt, und mach nicht weiter. Das Kreuz wird zwischendurch vorübergehend gestört, ist aber am Ende wieder vollständig.",
+  "beispiele": [
+    {
+      "id": "ecke-ein-mal",
+      "beschreibung": "Die Ecke ist herausgedreht; ein einziger Sexy Move bringt sie an ihren Platz.",
+      "setup": "U R U' R'",
+      "loesung": "R U R' U'",
+      "schritte": [{ "bereich": { "von": 0, "bis": 4 }, "text": "Sexy Move (R U R' U'): R hebt die Ecke an, U schiebt sie weiter, R' und U' setzen sie in ihren Platz." }]
+    },
+    {
+      "id": "ecke-drei-mal",
+      "beschreibung": "Ein anderer Zustand der Ecke braucht drei Wiederholungen des Sexy Move.",
+      "setup": "U R U' R' U R U' R' U R U' R'",
+      "loesung": "R U R' U' R U R' U' R U R' U'",
+      "schritte": [
+        { "bereich": { "von": 0, "bis": 4 }, "text": "Erste Wiederholung des Sexy Move." },
+        { "bereich": { "von": 4, "bis": 8 }, "text": "Zweite Wiederholung." },
+        { "bereich": { "von": 8, "bis": 12 }, "text": "Dritte Wiederholung: Jetzt sitzt die Ecke unten richtig." }
+      ]
+    },
+    {
+      "id": "ecke-fuenf-mal",
+      "beschreibung": "Im ungünstigsten Fall braucht die Ecke fünf Wiederholungen.",
+      "setup": "R U R' U'",
+      "loesung": "R U R' U' R U R' U' R U R' U' R U R' U' R U R' U'",
+      "schritte": [
+        { "bereich": { "von": 0, "bis": 8 }, "text": "Die ersten zwei Wiederholungen des Sexy Move." },
+        { "bereich": { "von": 8, "bis": 16 }, "text": "Die dritte und vierte Wiederholung." },
+        { "bereich": { "von": 16, "bis": 20 }, "text": "Die fünfte Wiederholung: Die Ecke sitzt unten richtig." }
+      ]
+    }
+  ]
+}

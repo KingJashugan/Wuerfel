@@ -24,10 +24,16 @@ Vitest, Playwright. UI-Framework: Entscheidung durch architect nach Prototyp.
 
 ## Lernmodell
 Zwei Inhaltstypen:
-1. "algorithmisch": Fall-Erkennung, Algorithmus, Trigger-Zerlegung,
+1. "algorithmisch" (Phasen 3–7): Fall-Erkennung, Algorithmus, Trigger-Zerlegung,
    Schritt-für-Schritt-Erklärung.
 2. "intuitiv" (Phasen 1–2): Zielzustand, Prinzip, mehrere Beispielfälle
    mit Lösungszügen.
+
+Phasen der Anfängermethode (genau diese Variante, Reihenfolge verbindlich):
+1 Weißes Kreuz, 2 Weiße Ecken, 3 Mittlere Kanten (Algorithmus links/rechts),
+4 Gelbes Kreuz, 5 Gelbe Kanten positionieren, 6 Gelbe Ecken positionieren,
+7 Gelbe Ecken orientieren. Algorithmen werden nie aus dem Gedächtnis
+behauptet, sondern durch tests/content.test.ts bestätigt.
 
 ## Konventionen
 - Notation: Singmaster. Weiß unten, Grün vorne (in content/ festhalten).

@@ -1,0 +1,62 @@
+{
+  "typ": "algorithmisch",
+  "id": "phase-7-gelbe-ecken-orientieren",
+  "phase": 7,
+  "titel": "Gelbe Ecken orientieren",
+  "ziel": {
+    "text": "Alle vier gelben Ecken zeigen mit Gelb nach oben, der Würfel ist gelöst. Jetzt sitzt alles schon am richtigen Platz; nur einzelne Ecken sind noch verdreht. Du bearbeitest immer nur die Ecke vorne rechts oben und drehst danach die obere Schicht mit U weiter, bis die nächste verdrehte Ecke dort liegt. Faustregel für die Ecke vorne rechts oben: Zeigt Gelb nach rechts, wiederholst du R' D' R D zweimal; zeigt Gelb nach vorne, viermal. Zwischen den Durchgängen sieht der Würfel durcheinander aus; das ist normal und wird erst mit dem letzten Durchgang wieder heil. Nicht abbrechen!",
+    "erhalten": ["gelbe-ecken-position"],
+    "erreicht": ["geloest"],
+    "aufTolerant": false
+  },
+  "algorithmus": {
+    "name": "Eckendreher",
+    "zuege": "R' D' R D",
+    "trigger": [
+      { "name": "Ecke ausklinken (R' D')", "zuege": "R' D'", "erklaerung": "Die erste Hälfte eines Durchgangs." },
+      { "name": "Ecke einklinken (R D)", "zuege": "R D", "erklaerung": "Die zweite Hälfte eines Durchgangs. Je zwei Durchgänge (8 Züge) bzw. vier Durchgänge (16 Züge) drehen die Ecke vorne rechts oben um ein Drittel in je eine andere Richtung, ohne die übrigen Teile endgültig zu verschieben." }
+    ],
+    "schritte": [
+      { "bereich": { "von": 0, "bis": 2 }, "text": "R' D': die erste Hälfte des Durchgangs." },
+      { "bereich": { "von": 2, "bis": 4 }, "text": "R D: die zweite Hälfte. Wiederhole den ganzen Durchgang zwei- oder viermal." }
+    ]
+  },
+  "faelle": [
+    {
+      "id": "zwei-ecken-rechts",
+      "name": "Zwei Ecken, beide mit Gelb nach rechts",
+      "erkennung": "Die Ecken vorne rechts und hinten rechts zeigen Gelb nach rechts. Vorne rechts: Gelb nach rechts, also zwei Durchgänge. Dann U: Die zweite Ecke liegt vorne rechts, Gelb zeigt jetzt nach vorne, also vier Durchgänge. Schließe mit U'.",
+      "loesung": "(R' D' R D)2 U (R' D' R D)4 U'"
+    },
+    {
+      "id": "zwei-ecken-diagonal",
+      "name": "Zwei Ecken diagonal gegenüber",
+      "erkennung": "Die Ecke vorne rechts zeigt Gelb nach rechts, die Ecke hinten links zeigt Gelb nach hinten. Vorne rechts: zwei Durchgänge. Dann U2: Die Ecke hinten links liegt jetzt vorne rechts, Gelb zeigt nach vorne, also vier Durchgänge. Schließe mit U2.",
+      "loesung": "(R' D' R D)2 U2 (R' D' R D)4 U2"
+    },
+    {
+      "id": "drei-ecken-rund",
+      "name": "Drei Ecken verdreht",
+      "erkennung": "Drei Ecken sind verdreht, die Ecke hinten rechts ist schon richtig: Vorne rechts zeigt Gelb nach rechts, hinten links nach links, vorne links nach vorne. Immer zwei Durchgänge, dazwischen die obere Schicht weiterdrehen (U2, dann U, dann U).",
+      "loesung": "(R' D' R D)2 U2 (R' D' R D)2 U (R' D' R D)2 U"
+    },
+    {
+      "id": "drei-ecken-andere-richtung",
+      "name": "Drei Ecken verdreht, andere Drehrichtung",
+      "erkennung": "Drei Ecken sind verdreht, die Ecke vorne rechts ist schon richtig: Hinten rechts zeigt Gelb nach rechts, hinten links nach hinten, vorne links nach links. Dreh zuerst U; dann jeweils vier Durchgänge, dazwischen immer U.",
+      "loesung": "U (R' D' R D)4 U (R' D' R D)4 U (R' D' R D)4 U"
+    },
+    {
+      "id": "vier-ecken-paarweise",
+      "name": "Alle vier Ecken verdreht (paarweise)",
+      "erkennung": "Alle vier Ecken zeigen Gelb zur Seite: vorne rechts nach rechts, hinten rechts nach hinten, hinten links nach hinten, vorne links nach links. Der Reihe nach: zwei, zwei, vier, vier Durchgänge, dazwischen immer U.",
+      "loesung": "(R' D' R D)2 U (R' D' R D)2 U (R' D' R D)4 U (R' D' R D)4 U"
+    },
+    {
+      "id": "vier-ecken-abwechselnd",
+      "name": "Alle vier Ecken verdreht (abwechselnd)",
+      "erkennung": "Alle vier Ecken zeigen Gelb zur Seite: vorne rechts und hinten rechts nach rechts, hinten links und vorne links nach links. Der Reihe nach: zwei, vier, zwei, vier Durchgänge, dazwischen immer U.",
+      "loesung": "(R' D' R D)2 U (R' D' R D)4 U (R' D' R D)2 U (R' D' R D)4 U"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "typ": "algorithmisch",
+  "id": "phase-6-gelbe-ecken-positionieren",
+  "phase": 6,
+  "titel": "Gelbe Ecken positionieren",
+  "ziel": {
+    "text": "Die vier gelben Ecken sitzen an ihrem richtigen Platz, d. h. jede Ecke steht zwischen den drei Mitten, zu denen ihre Farben gehören. Wie die Ecken gedreht sind, ist noch egal; das kommt in Phase 7. Die gelben Kanten und die unteren Schichten bleiben dabei richtig.",
+    "erhalten": ["gelbe-kanten-position"],
+    "erreicht": ["gelbe-ecken-position"],
+    "aufTolerant": false
+  },
+  "algorithmus": {
+    "name": "Ecken im Dreieck tauschen",
+    "zuege": "U R U' L' U R' U' L",
+    "trigger": [
+      { "name": "Erste Hälfte (U R U' L')", "zuege": "U R U' L'", "erklaerung": "Die erste Hälfte des Algorithmus. Allein verwürfelt sie die Ecken und die Kanten der oberen Schicht; erst mit der zweiten Hälfte entsteht der gewünschte Tausch." },
+      { "name": "Zweite Hälfte (U R' U' L)", "zuege": "U R' U' L", "erklaerung": "Die fast spiegelbildliche Gegenhälfte: Aus R wird R', aus L' wird L. Beide Hälften zusammen tauschen drei der vier Ecken im Kreis (Dreiertausch) und lassen die Kanten und die unteren Schichten richtig zurück." }
+    ],
+    "schritte": [
+      { "bereich": { "von": 0, "bis": 4 }, "text": "Erste Hälfte U R U' L'." },
+      { "bereich": { "von": 4, "bis": 8 }, "text": "Zweite Hälfte U R' U' L: Der Dreiertausch ist vollendet." }
+    ]
+  },
+  "faelle": [
+    {
+      "id": "eine-richtig-vorne-rechts",
+      "name": "Genau eine Ecke richtig (vorne rechts)",
+      "erkennung": "Prüfe jede gelbe Ecke: Ihre beiden Seitenfarben müssen zu den beiden Mitten passen, zwischen denen sie steht (die Gelbfarbe ist dabei egal). Sitzt genau eine Ecke richtig und liegt sie vorne rechts, wende den Algorithmus einmal an. Der Rest ist ein Dreiertausch.",
+      "loesung": "U R U' L' U R' U' L"
+    },
+    {
+      "id": "eine-richtig-hinten-rechts",
+      "name": "Genau eine Ecke richtig (hinten rechts)",
+      "erkennung": "Genau eine Ecke sitzt richtig, aber hinten rechts. Dreh die obere Schicht mit U, damit die richtige Ecke an die Stelle vorne rechts kommt, an der der Algorithmus sie erwartet, wende ihn an und gleiche mit U' wieder aus.",
+      "loesung": "U U R U' L' U R' U' L U'"
+    },
+    {
+      "id": "keine-richtig",
+      "name": "Keine Ecke richtig",
+      "erkennung": "Keine gelbe Ecke sitzt richtig: Die Ecken sind paarweise diagonal vertauscht. Wende den Algorithmus einmal an. Danach sitzt eine Ecke richtig; dreh U, wende den Algorithmus ein zweites Mal an und schließe mit U'.",
+      "loesung": "U R U' L' U R' U' L U U R U' L' U R' U' L U'"
+    }
+  ]
+}
