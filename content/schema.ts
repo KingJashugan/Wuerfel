@@ -18,7 +18,53 @@ export interface Zielzustand {
   erreicht: CubeRegion[];
   /** Ein abschliessendes U, U2 oder U' (AUF) ist zum Erreichen erlaubt. */
   aufTolerant: boolean;
+  /**
+   * Bereiche, die der Ausgangszustand JEDES Falls vor der Loesung erfuellen muss (strikt, vom Test
+   * geprueft). Ohne Angabe leitet der Test sie aus der Phase ab (`voraussetzungVon`).
+   */
+  voraussetzung?: CubeRegion[];
 }
+
+/** Voraussetzung je algorithmischer Phase, wenn `ziel.voraussetzung` fehlt: der Stand der Vorphase. */
+const VORAUSSETZUNG_DER_PHASE: Readonly<Record<number, readonly CubeRegion[]>> = {
+  3: ['erste-schicht'],
+  4: ['zweite-schicht'],
+  5: ['gelbes-kreuz'],
+  6: ['gelbe-kanten-position'],
+  7: ['gelbe-ecken-position'],
+};
+
+export function voraussetzungVon(e: AlgorithmischerEintrag): CubeRegion[] {
+  return [...(e.ziel.voraussetzung ?? VORAUSSETZUNG_DER_PHASE[e.phase] ?? [])];
+}
+
+export const TEIL_ARTEN = ['vorbereitung', 'algorithmus', 'variante', 'zwischen', 'nachbereitung'] as const;
+export type TeilArt = (typeof TEIL_ARTEN)[number];
+
+/**
+ * Ein Abschnitt der Loesung. Verkettung aller Teile (Durchgaenge ausgeschrieben) ergibt nach
+ * kanonischer Zusammenfassung an den Teilgrenzen (U + U -> U2, U U' -> nichts) genau `loesung`.
+ * art 'algorithmus' = `algorithmus.zuege`, art 'variante' = die Variante mit dem Namen `variante`;
+ * `durchgaenge` (Standard 1) wiederholt sie. Bei den anderen Arten stehen die Zuege frei in `zuege`.
+ */
+export interface Teil {
+  art: TeilArt;
+  zuege: string;
+  /** Pflicht bei art 'variante': Name der Variante. */
+  variante?: string;
+  /** Nur bei 'algorithmus' und 'variante': Anzahl Durchgaenge, 1..12. */
+  durchgaenge?: number;
+}
+
+export const VOLLSTAENDIGKEIT = ['kantenpermutation-oben', 'eckenpermutation-oben-gerade', 'gelbe-lagen'] as const;
+/**
+ * Welche Vollstaendigkeit die Faelle eines Eintrags haben muessen (vom Test geprueft, ueber die
+ * Ausgangszustaende der Faelle):
+ * - kantenpermutation-oben: alle 23 Nicht-Identitaets-Permutationen der vier oberen Kanten (Phase 5)
+ * - eckenpermutation-oben-gerade: alle 11 geraden Nicht-Identitaets-Permutationen der vier oberen Ecken (Phase 6)
+ * - gelbe-lagen: alle 7 Nicht-Kreuz-Muster der gelben Kantenaufkleber oben: Punkt, 2 Linien, 4 Winkel (Phase 4)
+ */
+export type Vollstaendigkeit = (typeof VOLLSTAENDIGKEIT)[number];
 
 export interface Trigger {
   name: string;
@@ -48,6 +94,13 @@ export interface Fall {
   nachbereitung?: string;
   /** Kurzes Label (nicht leer, hoechstens 30 Zeichen) zur Gruppierung der Faelle in der Oberflaeche, z. B. "Tausch". */
   gruppe?: string;
+  /**
+   * Strukturierte Loesung (siehe `Teil`). Pflicht, wenn die Loesung mehr ist als
+   * [vorbereitung] + ein Algorithmus-/Variantendurchgang + [nachbereitung], also bei mehreren
+   * Durchgaengen oder Zwischenzuegen (Test meldet die Fall-ID). Wenn vorhanden, stimmen
+   * `vorbereitung`/`nachbereitung` mit dem ersten bzw. letzten Teil ueberein.
+   */
+  teile?: Teil[];
   /**
    * Vollstaendige Zugfolge, die den Fall loest. Sie muss `algorithmus.zuege` (oder eine
    * deklarierte Variante) als zusammenhaengende Teilfolge enthalten. Wiederholungen werden mit
@@ -97,6 +150,26 @@ export interface AlgorithmischerEintrag {
   ziel: Zielzustand;
   algorithmus: Algorithmus;
   faelle: Fall[];
+  vollstaendigkeit?: Vollstaendigkeit;
+}
+
+export const ABLAUF_PRAEFIX = 'Ablauf:';
+
+/**
+ * Ablauftext aus `teile`, z. B. "Ablauf: U' – Sune – U2." (Algorithmus/Variante mit Namen, bei
+ * mehreren Durchgaengen "2× Sune"). null ohne `teile`. Die Oberflaeche erzeugt den Text daraus;
+ * ein handgeschriebener `hinweis` darf nur dann mit "Ablauf:" beginnen, wenn er genau diesem Text
+ * entspricht (sonst gilt er als doppelte, abweichende Quelle und der Test meldet ihn).
+ */
+export function hinweisAusTeilen(fall: Fall, algorithmus: Algorithmus): string | null {
+  if (!fall.teile || fall.teile.length === 0) return null;
+  const label = (t: Teil, name: string): string => ((t.durchgaenge ?? 1) > 1 ? `${t.durchgaenge}× ${name}` : name);
+  const parts = fall.teile.map((t) => {
+    if (t.art === 'algorithmus') return label(t, algorithmus.name);
+    if (t.art === 'variante') return label(t, t.variante ?? 'Variante');
+    return t.zuege.trim();
+  });
+  return `${ABLAUF_PRAEFIX} ${parts.join(' – ')}.`;
 }
 
 export interface Beispiel {
@@ -221,9 +294,16 @@ function regions(c: Ctx, x: unknown, path: string, minLen = 0): void {
 }
 
 function ziel(c: Ctx, x: unknown, path: string): void {
-  const o = obj(c, x, path, ['text', 'erhalten', 'erreicht', 'aufTolerant'], ['text', 'erhalten', 'erreicht', 'aufTolerant']);
+  const o = obj(
+    c,
+    x,
+    path,
+    ['text', 'erhalten', 'erreicht', 'aufTolerant', 'voraussetzung'],
+    ['text', 'erhalten', 'erreicht', 'aufTolerant'],
+  );
   if (!o) return;
   str(c, o['text'], `${path}.text`);
+  if ('voraussetzung' in o) regions(c, o['voraussetzung'], `${path}.voraussetzung`, 1);
   regions(c, o['erhalten'], `${path}.erhalten`);
   regions(c, o['erreicht'], `${path}.erreicht`, 1);
   if (typeof o['aufTolerant'] !== 'boolean') c.err(`${path}.aufTolerant`, 'true oder false erwartet');
@@ -264,7 +344,33 @@ function triggerListe(c: Ctx, x: unknown, path: string): void {
   });
 }
 
+function teileListe(c: Ctx, x: unknown, path: string): void {
+  arr(c, x, path, 1)?.forEach((t, i) => {
+    const p = `${path}[${i}]`;
+    const to = obj(c, t, p, ['art', 'zuege', 'variante', 'durchgaenge'], ['art', 'zuege']);
+    if (!to) return;
+    const art = to['art'];
+    if (typeof art !== 'string' || !(TEIL_ARTEN as readonly string[]).includes(art)) {
+      c.err(`${p}.art`, `unbekannte art ${JSON.stringify(art)} (erlaubt: ${TEIL_ARTEN.join(', ')})`);
+    }
+    str(c, to['zuege'], `${p}.zuege`);
+    if ('durchgaenge' in to) {
+      if (art !== 'algorithmus' && art !== 'variante') c.err(`${p}.durchgaenge`, 'nur bei art algorithmus oder variante erlaubt');
+      int(c, to['durchgaenge'], `${p}.durchgaenge`, 1, 12);
+    }
+    if ('variante' in to) {
+      if (art !== 'variante') c.err(`${p}.variante`, 'nur bei art variante erlaubt');
+      str(c, to['variante'], `${p}.variante`);
+    } else if (art === 'variante') {
+      c.err(`${p}.variante`, 'Pflichtfeld bei art variante fehlt');
+    }
+  });
+}
+
 function algorithmisch(c: Ctx, o: Obj): void {
+  if ('vollstaendigkeit' in o && !(VOLLSTAENDIGKEIT as readonly unknown[]).includes(o['vollstaendigkeit'])) {
+    c.err('vollstaendigkeit', `unbekannter Wert (erlaubt: ${VOLLSTAENDIGKEIT.join(', ')})`);
+  }
   int(c, o['phase'], 'phase', 3, 7);
   ziel(c, o['ziel'], 'ziel');
   const a = obj(
@@ -299,7 +405,7 @@ function algorithmisch(c: Ctx, o: Obj): void {
       c,
       f,
       p,
-      ['id', 'name', 'erkennung', 'hinweis', 'vorbereitung', 'nachbereitung', 'gruppe', 'loesung', 'setup'],
+      ['id', 'name', 'erkennung', 'hinweis', 'vorbereitung', 'nachbereitung', 'gruppe', 'teile', 'loesung', 'setup'],
       ['id', 'name', 'erkennung', 'loesung'],
     );
     if (!fo) return;
@@ -308,6 +414,7 @@ function algorithmisch(c: Ctx, o: Obj): void {
     str(c, fo['erkennung'], `${p}.erkennung`);
     str(c, fo['loesung'], `${p}.loesung`);
     for (const k of ['hinweis', 'vorbereitung', 'nachbereitung', 'setup']) if (k in fo) str(c, fo[k], `${p}.${k}`);
+    if ('teile' in fo) teileListe(c, fo['teile'], `${p}.teile`);
     if ('gruppe' in fo) {
       const g = str(c, fo['gruppe'], `${p}.gruppe`);
       if (g !== null && g.length > MAX_GRUPPE) c.err(`${p}.gruppe`, `hoechstens ${MAX_GRUPPE} Zeichen erlaubt`);
@@ -339,7 +446,7 @@ export function validateEntry(x: unknown): ValidationResult<Eintrag> {
   const c = new Ctx();
   if (!isObj(x)) return { ok: false, fehler: ['Eintrag: Objekt erwartet'] };
   if (x['typ'] === 'algorithmisch') {
-    const o = obj(c, x, 'eintrag', ['typ', 'id', 'phase', 'titel', 'ziel', 'algorithmus', 'faelle'], ['typ', 'id', 'phase', 'titel', 'ziel', 'algorithmus', 'faelle']);
+    const o = obj(c, x, 'eintrag', ['typ', 'id', 'phase', 'titel', 'ziel', 'algorithmus', 'faelle', 'vollstaendigkeit'], ['typ', 'id', 'phase', 'titel', 'ziel', 'algorithmus', 'faelle']);
     if (o) {
       id(c, o['id'], 'id');
       str(c, o['titel'], 'titel');

@@ -41,13 +41,21 @@
       { "bereich": { "von": 5, "bis": 6 }, "text": "F' schließt den Rahmen." }
     ]
   },
+  "vollstaendigkeit": "gelbe-lagen",
   "faelle": [
     {
       "id": "punkt",
       "name": "Punkt",
       "gruppe": "Punkt",
       "erkennung": "Nur der gelbe Mittelstein ist oben gelb, keine der vier Kanten.",
-      "hinweis": "Algorithmus, U2, Algorithmus, U2, Algorithmus.",
+      "hinweis": "Dreimal der Algorithmus, dazwischen jeweils U2.",
+      "teile": [
+        { "art": "algorithmus", "zuege": "F R U R' U' F'" },
+        { "art": "zwischen", "zuege": "U2" },
+        { "art": "algorithmus", "zuege": "F R U R' U' F'" },
+        { "art": "zwischen", "zuege": "U2" },
+        { "art": "algorithmus", "zuege": "F R U R' U' F'" }
+      ],
       "loesung": "F R U R' U' F' U2 F R U R' U' F' U2 F R U R' U' F'"
     },
     {
@@ -56,6 +64,11 @@
       "gruppe": "Winkel",
       "erkennung": "Genau zwei benachbarte gelbe Kanten zeigen Gelb nach oben und bilden eine L-Form: hier hinten und links.",
       "hinweis": "Merke: L-Form nach hinten links drehen, dann Algorithmus, U2, Algorithmus.",
+      "teile": [
+        { "art": "algorithmus", "zuege": "F R U R' U' F'" },
+        { "art": "zwischen", "zuege": "U2" },
+        { "art": "algorithmus", "zuege": "F R U R' U' F'" }
+      ],
       "loesung": "F R U R' U' F' U2 F R U R' U' F'"
     },
     {
@@ -64,6 +77,12 @@
       "gruppe": "Winkel",
       "erkennung": "Die L-Form aus gelben Kanten liegt vorne und rechts.",
       "hinweis": "U2 bringt die L-Form nach hinten links; dann Algorithmus, U2, Algorithmus.",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U2" },
+        { "art": "algorithmus", "zuege": "F R U R' U' F'" },
+        { "art": "zwischen", "zuege": "U2" },
+        { "art": "algorithmus", "zuege": "F R U R' U' F'" }
+      ],
       "vorbereitung": "U2",
       "loesung": "U2 F R U R' U' F' U2 F R U R' U' F'"
     },
@@ -73,6 +92,12 @@
       "gruppe": "Winkel",
       "erkennung": "Die L-Form aus gelben Kanten liegt vorne und links.",
       "hinweis": "U bringt die L-Form nach hinten links; dann Algorithmus, U2, Algorithmus.",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "F R U R' U' F'" },
+        { "art": "zwischen", "zuege": "U2" },
+        { "art": "algorithmus", "zuege": "F R U R' U' F'" }
+      ],
       "vorbereitung": "U",
       "loesung": "U F R U R' U' F' U2 F R U R' U' F'"
     },
@@ -82,6 +107,12 @@
       "gruppe": "Winkel",
       "erkennung": "Die L-Form aus gelben Kanten liegt hinten und rechts.",
       "hinweis": "U' bringt die L-Form nach hinten links; dann Algorithmus, U2, Algorithmus.",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U'" },
+        { "art": "algorithmus", "zuege": "F R U R' U' F'" },
+        { "art": "zwischen", "zuege": "U2" },
+        { "art": "algorithmus", "zuege": "F R U R' U' F'" }
+      ],
       "vorbereitung": "U'",
       "loesung": "U' F R U R' U' F' U2 F R U R' U' F'"
     },

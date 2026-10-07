@@ -152,6 +152,47 @@ export async function regionsSatisfied(setup: string, alg: string, regions: read
   return violatedRegions(await canonicalPatternAfter(setup, alg), regions);
 }
 
+/** Eindeutiger Schluessel des Zustands nach `setup` + `alg` (Mitten in Referenzlage); gleicher Schluessel = gleicher Zustand. */
+export async function stateKey(setup: string, alg = ''): Promise<string> {
+  const { pattern } = await canonicalPatternAfter(setup, alg);
+  const { EDGES, CORNERS } = pattern.patternData;
+  return JSON.stringify([EDGES!.pieces, EDGES!.orientation, CORNERS!.pieces, CORNERS!.orientation]);
+}
+
+/**
+ * Zustand der oberen Schicht (Plaetze 0..3 der Kanten und Ecken) nach `setup` + `alg`.
+ * - *Permutation[i] = Index (0..3) des oberen Platzes, zu dem das Teil auf Platz i gehoert; -1, wenn dort
+ *   ein Teil aus einer anderen Schicht sitzt.
+ * - *Orientierung[i] = Drehung des Teils auf Platz i (Kanten 0/1, Ecken 0..2; 0 = Gelb oben).
+ */
+export interface UpperLayerInfo {
+  edgePermutation: number[];
+  edgeOrientation: number[];
+  cornerPermutation: number[];
+  cornerOrientation: number[];
+}
+
+export async function upperLayerInfo(setup: string, alg = ''): Promise<UpperLayerInfo> {
+  const { ref, pattern } = await canonicalPatternAfter(setup, alg);
+  const orbit = (name: 'EDGES' | 'CORNERS') => {
+    const p = pattern.patternData[name]!;
+    const r = ref.patternData[name]!;
+    const upper = [0, 1, 2, 3].map((i) => r.pieces[i] as number);
+    return {
+      permutation: [0, 1, 2, 3].map((i) => upper.indexOf(p.pieces[i] as number)),
+      orientation: [0, 1, 2, 3].map((i) => p.orientation[i] as number),
+    };
+  };
+  const e = orbit('EDGES');
+  const c = orbit('CORNERS');
+  return {
+    edgePermutation: e.permutation,
+    edgeOrientation: e.orientation,
+    cornerPermutation: c.permutation,
+    cornerOrientation: c.orientation,
+  };
+}
+
 export type Auf = '' | 'U' | 'U2' | "U'";
 
 export interface CaseCheckInput {

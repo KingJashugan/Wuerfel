@@ -4,7 +4,7 @@
   "phase": 6,
   "titel": "Gelbe Ecken positionieren",
   "ziel": {
-    "text": "Die vier gelben Ecken stehen am richtigen Platz: Jede Ecke steht zwischen den Mitten, zu denen ihre Seitenfarben gehören. Wie sie gedreht sind, ist noch egal.",
+    "text": "Die vier gelben Ecken stehen am richtigen Platz: Jede Ecke steht zwischen den Mitten, zu denen ihre Seitenfarben gehören. Wie sie gedreht sind, ist noch egal. Starte hier, wenn die gelben Kanten schon richtig stehen.",
     "erhalten": ["gelbes-kreuz"],
     "erreicht": ["gelbe-ecken-position"],
     "aufTolerant": false
@@ -32,14 +32,18 @@
       }
     ]
   },
+  "vollstaendigkeit": "eckenpermutation-oben-gerade",
   "faelle": [
     {
       "id": "e-0231",
       "name": "Vorne rechts richtig, gegen Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Ecke sitzt richtig (vorne rechts). Die drei anderen sind im Kreis vertauscht; es gehört hinten rechts nach hinten links, hinten links nach vorne links, vorne links nach hinten rechts.",
-      "hinweis": "Ablauf: U – Algorithmus.",
       "vorbereitung": "U",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" }
+      ],
       "loesung": "U R U' L' U R' U' L"
     },
     {
@@ -47,8 +51,11 @@
       "name": "Vorne links richtig, gegen Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Ecke sitzt richtig (vorne links). Die drei anderen sind im Kreis vertauscht; es gehört vorne rechts nach hinten rechts, hinten rechts nach hinten links, hinten links nach vorne rechts.",
-      "hinweis": "Ablauf: Algorithmus – U.",
       "nachbereitung": "U",
+      "teile": [
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" },
+        { "art": "nachbereitung", "zuege": "U" }
+      ],
       "loesung": "R U' L' U R' U' L U"
     },
     {
@@ -56,9 +63,13 @@
       "name": "Hinten links richtig, gegen Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Ecke sitzt richtig (hinten links). Die drei anderen sind im Kreis vertauscht; es gehört vorne rechts nach hinten rechts, hinten rechts nach vorne links, vorne links nach vorne rechts.",
-      "hinweis": "Ablauf: U' – Algorithmus – U2.",
       "vorbereitung": "U'",
       "nachbereitung": "U2",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U'" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" },
+        { "art": "nachbereitung", "zuege": "U2" }
+      ],
       "loesung": "U' R U' L' U R' U' L U2"
     },
     {
@@ -66,9 +77,13 @@
       "name": "Hinten rechts richtig, gegen Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Ecke sitzt richtig (hinten rechts). Die drei anderen sind im Kreis vertauscht; es gehört vorne rechts nach hinten links, hinten links nach vorne links, vorne links nach vorne rechts.",
-      "hinweis": "Ablauf: U2 – Algorithmus – U'.",
       "vorbereitung": "U2",
       "nachbereitung": "U'",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U2" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" },
+        { "art": "nachbereitung", "zuege": "U'" }
+      ],
       "loesung": "U2 R U' L' U R' U' L U'"
     },
     {
@@ -76,8 +91,13 @@
       "name": "Vorne rechts richtig, mit Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Ecke sitzt richtig (vorne rechts). Die drei anderen sind im Kreis vertauscht; es gehört hinten rechts nach vorne links, vorne links nach hinten links, hinten links nach hinten rechts.",
-      "hinweis": "Ablauf: U – Algorithmus – U – Algorithmus.",
       "vorbereitung": "U",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" },
+        { "art": "zwischen", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" }
+      ],
       "loesung": "U R U' L' U R' U' L U R U' L' U R' U' L"
     },
     {
@@ -85,8 +105,13 @@
       "name": "Vorne links richtig, mit Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Ecke sitzt richtig (vorne links). Die drei anderen sind im Kreis vertauscht; es gehört vorne rechts nach hinten links, hinten links nach hinten rechts, hinten rechts nach vorne rechts.",
-      "hinweis": "Ablauf: Algorithmus – U – Algorithmus – U.",
       "nachbereitung": "U",
+      "teile": [
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" },
+        { "art": "zwischen", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" },
+        { "art": "nachbereitung", "zuege": "U" }
+      ],
       "loesung": "R U' L' U R' U' L U R U' L' U R' U' L U"
     },
     {
@@ -94,9 +119,15 @@
       "name": "Hinten links richtig, mit Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Ecke sitzt richtig (hinten links). Die drei anderen sind im Kreis vertauscht; es gehört vorne rechts nach vorne links, vorne links nach hinten rechts, hinten rechts nach vorne rechts.",
-      "hinweis": "Ablauf: U' – Algorithmus – U – Algorithmus – U2.",
       "vorbereitung": "U'",
       "nachbereitung": "U2",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U'" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" },
+        { "art": "zwischen", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" },
+        { "art": "nachbereitung", "zuege": "U2" }
+      ],
       "loesung": "U' R U' L' U R' U' L U R U' L' U R' U' L U2"
     },
     {
@@ -104,9 +135,15 @@
       "name": "Hinten rechts richtig, mit Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Ecke sitzt richtig (hinten rechts). Die drei anderen sind im Kreis vertauscht; es gehört vorne rechts nach vorne links, vorne links nach hinten links, hinten links nach vorne rechts.",
-      "hinweis": "Ablauf: U2 – Algorithmus – U – Algorithmus – U'.",
       "vorbereitung": "U2",
       "nachbereitung": "U'",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U2" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" },
+        { "art": "zwischen", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" },
+        { "art": "nachbereitung", "zuege": "U'" }
+      ],
       "loesung": "U2 R U' L' U R' U' L U R U' L' U R' U' L U'"
     },
     {
@@ -114,9 +151,14 @@
       "name": "Doppeltausch, vorne rechts–hinten rechts",
       "gruppe": "Doppeltausch",
       "erkennung": "Zwei Paare sind vertauscht: vorne rechts mit hinten rechts und hinten links mit vorne links. Keine sitzt richtig.",
-      "hinweis": "Ablauf: U – Algorithmus – Algorithmus – U.",
       "vorbereitung": "U",
       "nachbereitung": "U",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" },
+        { "art": "nachbereitung", "zuege": "U" }
+      ],
       "loesung": "U R U' L' U R' U' L R U' L' U R' U' L U"
     },
     {
@@ -124,9 +166,15 @@
       "name": "Doppeltausch über Kreuz",
       "gruppe": "Doppeltausch",
       "erkennung": "Zwei Paare sind vertauscht: vorne rechts mit hinten links und hinten rechts mit vorne links. Keine sitzt richtig.",
-      "hinweis": "Ablauf: U – Algorithmus – U2 – Algorithmus – U'.",
       "vorbereitung": "U",
       "nachbereitung": "U'",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" },
+        { "art": "zwischen", "zuege": "U2" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" },
+        { "art": "nachbereitung", "zuege": "U'" }
+      ],
       "loesung": "U R U' L' U R' U' L U2 R U' L' U R' U' L U'"
     },
     {
@@ -134,8 +182,12 @@
       "name": "Doppeltausch, vorne rechts–vorne links",
       "gruppe": "Doppeltausch",
       "erkennung": "Zwei Paare sind vertauscht: vorne rechts mit vorne links und hinten rechts mit hinten links. Keine sitzt richtig.",
-      "hinweis": "Ablauf: U2 – Algorithmus – Algorithmus.",
       "vorbereitung": "U2",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U2" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" },
+        { "art": "algorithmus", "zuege": "R U' L' U R' U' L" }
+      ],
       "loesung": "U2 R U' L' U R' U' L R U' L' U R' U' L"
     },
     {

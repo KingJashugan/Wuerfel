@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateEntry, validateMethode } from '../content/schema';
+import { hinweisAusTeilen, validateEntry, validateMethode, voraussetzungVon, type Algorithmus, type Fall } from '../content/schema';
 
 const goodAlgEntry = () => ({
   typ: 'algorithmisch',
@@ -255,5 +255,108 @@ describe('validateEntry (nachbereitung, gruppe, Variante mit Trigger/Schritten)'
     expect(mk({ schritte: [] }).ok).toBe(false);
     expect(mk({ trigger: [{ name: 't', zuege: "L'" }] }).ok).toBe(false);
     expect(mk({ unbekannt: 1 }).ok).toBe(false);
+  });
+});
+
+describe('validateEntry (teile)', () => {
+  const withTeile = (teile: unknown) => {
+    const e = goodAlgEntry();
+    Object.assign(e.faelle[0]!, { teile });
+    return validateEntry(e);
+  };
+  it('akzeptiert gueltige Teile', () => {
+    expect(
+      withTeile([
+        { art: 'vorbereitung', zuege: 'U' },
+        { art: 'algorithmus', zuege: SUNE_STR, durchgaenge: 2 },
+        { art: 'zwischen', zuege: 'U2' },
+        { art: 'variante', zuege: "L' U'", variante: 'links' },
+        { art: 'nachbereitung', zuege: "U'" },
+      ]).ok,
+    ).toBe(true);
+  });
+  it('lehnt unbekannte art, unbekannte Felder und leere Liste ab', () => {
+    expect(withTeile([{ art: 'mitte', zuege: 'U' }]).ok).toBe(false);
+    expect(withTeile([{ art: 'zwischen', zuege: 'U', foo: 1 }]).ok).toBe(false);
+    expect(withTeile([]).ok).toBe(false);
+    expect(withTeile('x').ok).toBe(false);
+  });
+  it('zuege ist Pflicht und nicht leer', () => {
+    expect(withTeile([{ art: 'zwischen' }]).ok).toBe(false);
+    expect(withTeile([{ art: 'zwischen', zuege: ' ' }]).ok).toBe(false);
+  });
+  it('durchgaenge nur bei algorithmus/variante, ganzzahlig 1..12', () => {
+    expect(withTeile([{ art: 'zwischen', zuege: 'U', durchgaenge: 2 }]).ok).toBe(false);
+    for (const d of [0, 13, 1.5, '2']) expect(withTeile([{ art: 'algorithmus', zuege: SUNE_STR, durchgaenge: d }]).ok, String(d)).toBe(false);
+    expect(withTeile([{ art: 'algorithmus', zuege: SUNE_STR, durchgaenge: 1 }]).ok).toBe(true);
+  });
+  it('variante: Name Pflicht bei art variante, sonst verboten', () => {
+    expect(withTeile([{ art: 'variante', zuege: 'L' }]).ok).toBe(false);
+    expect(withTeile([{ art: 'algorithmus', zuege: SUNE_STR, variante: 'x' }]).ok).toBe(false);
+  });
+});
+
+const SUNE_STR = "R U R' U R U2 R'";
+
+describe('hinweisAusTeilen', () => {
+  const alg: Algorithmus = { name: 'Sune', zuege: SUNE_STR, trigger: [], schritte: [{ bereich: { von: 0, bis: 7 }, text: 't' }], varianten: [{ name: 'Links', zuege: "L' U' L" }] };
+  const fall = (teile?: Fall['teile']): Fall => ({ id: 'f', name: 'n', erkennung: 'e', loesung: 'U', ...(teile ? { teile } : {}) });
+  it('ohne teile null', () => {
+    expect(hinweisAusTeilen(fall(), alg)).toBeNull();
+  });
+  it('erzeugt Ablauftext aus den Teilen', () => {
+    expect(
+      hinweisAusTeilen(
+        fall([
+          { art: 'vorbereitung', zuege: "U'" },
+          { art: 'algorithmus', zuege: SUNE_STR },
+          { art: 'nachbereitung', zuege: 'U2' },
+        ]),
+        alg,
+      ),
+    ).toBe("Ablauf: U' – Sune – U2.");
+    expect(
+      hinweisAusTeilen(
+        fall([
+          { art: 'algorithmus', zuege: SUNE_STR, durchgaenge: 2 },
+          { art: 'zwischen', zuege: 'U' },
+          { art: 'variante', zuege: "L' U' L", variante: 'Links', durchgaenge: 3 },
+        ]),
+        alg,
+      ),
+    ).toBe('Ablauf: 2× Sune – U – 3× Links.');
+  });
+});
+
+describe('voraussetzungVon', () => {
+  it('nimmt ziel.voraussetzung, sonst die Vorphase', () => {
+    const e = goodAlgEntry();
+    expect(voraussetzungVon(e as never)).toEqual(['gelbe-ecken-position']); // phase 7
+    expect(voraussetzungVon({ ...e, phase: 4 } as never)).toEqual(['zweite-schicht']);
+    expect(voraussetzungVon({ ...e, phase: 5 } as never)).toEqual(['gelbes-kreuz']);
+    expect(voraussetzungVon({ ...e, phase: 6 } as never)).toEqual(['gelbe-kanten-position']);
+    expect(voraussetzungVon({ ...e, phase: 3 } as never)).toEqual(['erste-schicht']);
+    expect(voraussetzungVon({ ...e, ziel: { ...e.ziel, voraussetzung: ['kreuz-unten'] } } as never)).toEqual(['kreuz-unten']);
+  });
+  it('voraussetzung wird validiert (mindestens ein bekannter Bereich)', () => {
+    const e = goodAlgEntry();
+    Object.assign(e.ziel, { voraussetzung: ['erste-schicht'] });
+    expect(validateEntry(e).ok).toBe(true);
+    Object.assign(e.ziel, { voraussetzung: [] });
+    expect(validateEntry(e).ok).toBe(false);
+    Object.assign(e.ziel, { voraussetzung: ['nix'] });
+    expect(validateEntry(e).ok).toBe(false);
+  });
+});
+
+describe('vollstaendigkeit', () => {
+  it('nur bekannte Werte', () => {
+    const e = goodAlgEntry();
+    for (const v of ['kantenpermutation-oben', 'eckenpermutation-oben-gerade', 'gelbe-lagen']) {
+      Object.assign(e, { vollstaendigkeit: v });
+      expect(validateEntry(e).ok, v).toBe(true);
+    }
+    Object.assign(e, { vollstaendigkeit: 'alles' });
+    expect(validateEntry(e).ok).toBe(false);
   });
 });

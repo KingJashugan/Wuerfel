@@ -90,16 +90,27 @@
       "id": "kante-falsch-rechts",
       "name": "Falsche Kante steckt vorne rechts",
       "gruppe": "Falsch eingesetzt",
-      "erkennung": "In der Mitte vorne rechts steckt eine Kante mit Gelb; sie gehört nach oben. Wende den Algorithmus nach rechts einmal an: Er holt die Kante nach oben. Erkenne dann neu, welche Kante wohin gehört, und setze ggf. erneut ein.",
-      "hinweis": "Einmal anwenden, neu erkennen, ggf. erneut.",
+      "erkennung": "In der Mitte vorne rechts steckt eine Kante mit Gelb, die dort nicht hingehört. Die richtige Kante liegt oben.",
+      "hinweis": "Wende den Algorithmus nach rechts einmal an. Danach steckt wieder eine gelbe Kante im Platz; ein zweiter Durchgang holt auch sie heraus. Erkenne nach jedem Durchgang neu.",
+      "teile": [
+        { "art": "algorithmus", "zuege": "U R U' R' U' F' U F", "durchgaenge": 2 }
+      ],
       "loesung": "U R U' R' U' F' U F U R U' R' U' F' U F"
     },
     {
       "id": "kante-falsch-links",
       "name": "Falsche Kante steckt vorne links",
       "gruppe": "Falsch eingesetzt",
-      "erkennung": "In der Mitte vorne links steckt eine Kante mit Gelb. Wende den Spiegel-Algorithmus nach links einmal an, um sie nach oben zu holen. Erkenne dann neu und setze ggf. erneut ein.",
-      "hinweis": "Einmal anwenden, neu erkennen, ggf. erneut.",
+      "erkennung": "In der Mitte vorne links steckt eine Kante mit Gelb, die dort nicht hingehört. Die richtige Kante liegt oben.",
+      "hinweis": "Wende die Spiegelvariante nach links einmal an. Danach steckt wieder eine gelbe Kante im Platz; ein zweiter Durchgang holt auch sie heraus. Erkenne nach jedem Durchgang neu.",
+      "teile": [
+        {
+          "art": "variante",
+          "variante": "Spiegelvariante (nach links)",
+          "zuege": "U' L' U L U F U' F'",
+          "durchgaenge": 2
+        }
+      ],
       "loesung": "U' L' U L U F U' F' U' L' U L U F U' F'"
     }
   ]

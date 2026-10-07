@@ -60,7 +60,7 @@
     },
     {
       "id": "drei-kanten-verdreht",
-      "beschreibung": "Drei weiße Kanten (vorne, rechts, hinten) liegen oben, und die obere Schicht ist zusätzlich gedreht. Zuerst die Schicht zurückdrehen, dann jede Kante mit einer halben Drehung nach unten bringen.",
+      "beschreibung": "Drei weiße Kanten (vorne, rechts, links) liegen oben, und sie stehen nicht über ihren Plätzen, weil die obere Schicht gedreht wurde. Zuerst die Schicht zurückdrehen, dann jede Kante mit einer halben Drehung nach unten bringen.",
       "setup": "F2 R2 B2 U",
       "loesung": "U' B2 R2 F2",
       "schritte": [
@@ -71,6 +71,20 @@
         {
           "bereich": { "von": 1, "bis": 4 },
           "text": "B2, R2 und F2 holen die drei Kanten nacheinander nach unten."
+        }
+      ]
+    },
+    {
+      "id": "kurze-zugfolge",
+      "beschreibung": "Eine kurze Zugfolge (L F2 L') hat das Kreuz verstellt. Sie ist ihr eigenes Gegenteil: Dieselben drei Züge noch einmal machen das Kreuz wieder heil.",
+      "setup": "L F2 L'",
+      "loesung": "L F2 L'",
+      "schritte": [
+        { "bereich": { "von": 0, "bis": 1 }, "text": "L dreht die linke Seite." },
+        { "bereich": { "von": 1, "bis": 2 }, "text": "F2 dreht die Vorderseite um 180 Grad." },
+        {
+          "bereich": { "von": 2, "bis": 3 },
+          "text": "L' dreht die linke Seite zurück; das Kreuz ist wieder vollständig."
         }
       ]
     }

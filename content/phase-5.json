@@ -32,14 +32,18 @@
       }
     ]
   },
+  "vollstaendigkeit": "kantenpermutation-oben",
   "faelle": [
     {
       "id": "k-3120",
       "name": "Vorne und links vertauscht",
       "gruppe": "Tausch",
       "erkennung": "Kanten vorne und links sind vertauscht; die anderen beiden sitzen richtig.",
-      "hinweis": "Ablauf: Sune – U.",
       "nachbereitung": "U",
+      "teile": [
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U" }
+      ],
       "loesung": "R U R' U R U2 R' U"
     },
     {
@@ -47,9 +51,13 @@
       "name": "Hinten und links vertauscht",
       "gruppe": "Tausch",
       "erkennung": "Kanten hinten und links sind vertauscht; die anderen beiden sitzen richtig.",
-      "hinweis": "Ablauf: U' – Sune – U2.",
       "vorbereitung": "U'",
       "nachbereitung": "U2",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U'" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U2" }
+      ],
       "loesung": "U' R U R' U R U2 R' U2"
     },
     {
@@ -57,9 +65,13 @@
       "name": "Rechts und hinten vertauscht",
       "gruppe": "Tausch",
       "erkennung": "Kanten rechts und hinten sind vertauscht; die anderen beiden sitzen richtig.",
-      "hinweis": "Ablauf: U2 – Sune – U'.",
       "vorbereitung": "U2",
       "nachbereitung": "U'",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U2" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U'" }
+      ],
       "loesung": "U2 R U R' U R U2 R' U'"
     },
     {
@@ -67,8 +79,11 @@
       "name": "Vorne und rechts vertauscht",
       "gruppe": "Tausch",
       "erkennung": "Kanten vorne und rechts sind vertauscht; die anderen beiden sitzen richtig.",
-      "hinweis": "Ablauf: U – Sune.",
       "vorbereitung": "U",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" }
+      ],
       "loesung": "U R U R' U R U2 R'"
     },
     {
@@ -76,8 +91,13 @@
       "name": "Rechts und links vertauscht",
       "gruppe": "Tausch",
       "erkennung": "Kanten rechts und links sind vertauscht; die anderen beiden sitzen richtig.",
-      "hinweis": "Ablauf: Sune – U' – Sune – U2.",
       "nachbereitung": "U2",
+      "teile": [
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "zwischen", "zuege": "U'" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U2" }
+      ],
       "loesung": "R U R' U R U2 R' U' R U R' U R U2 R' U2"
     },
     {
@@ -85,7 +105,11 @@
       "name": "Vorne und hinten vertauscht",
       "gruppe": "Tausch",
       "erkennung": "Kanten vorne und hinten sind vertauscht; die anderen beiden sitzen richtig.",
-      "hinweis": "Ablauf: Sune – U' – Sune.",
+      "teile": [
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "zwischen", "zuege": "U'" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" }
+      ],
       "loesung": "R U R' U R U2 R' U' R U R' U R U2 R'"
     },
     {
@@ -93,7 +117,9 @@
       "name": "Vorne richtig, gegen Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Kante sitzt richtig (vorne). Die drei anderen sind im Kreis vertauscht; es gehört rechts nach hinten, hinten nach links, links nach rechts.",
-      "hinweis": "Ablauf: Sune.",
+      "teile": [
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" }
+      ],
       "loesung": "R U R' U R U2 R'"
     },
     {
@@ -101,9 +127,13 @@
       "name": "Vorne richtig, mit Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Kante sitzt richtig (vorne). Die drei anderen sind im Kreis vertauscht; es gehört rechts nach links, links nach hinten, hinten nach rechts.",
-      "hinweis": "Ablauf: U – Sune – U.",
       "vorbereitung": "U",
       "nachbereitung": "U",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U" }
+      ],
       "loesung": "U R U R' U R U2 R' U"
     },
     {
@@ -111,9 +141,13 @@
       "name": "Links richtig, gegen Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Kante sitzt richtig (links). Die drei anderen sind im Kreis vertauscht; es gehört vorne nach rechts, rechts nach hinten, hinten nach vorne.",
-      "hinweis": "Ablauf: U' – Sune – U.",
       "vorbereitung": "U'",
       "nachbereitung": "U",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U'" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U" }
+      ],
       "loesung": "U' R U R' U R U2 R' U"
     },
     {
@@ -121,8 +155,11 @@
       "name": "Links richtig, mit Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Kante sitzt richtig (links). Die drei anderen sind im Kreis vertauscht; es gehört vorne nach hinten, hinten nach rechts, rechts nach vorne.",
-      "hinweis": "Ablauf: Sune – U2.",
       "nachbereitung": "U2",
+      "teile": [
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U2" }
+      ],
       "loesung": "R U R' U R U2 R' U2"
     },
     {
@@ -130,9 +167,13 @@
       "name": "Hinten richtig, gegen Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Kante sitzt richtig (hinten). Die drei anderen sind im Kreis vertauscht; es gehört vorne nach rechts, rechts nach links, links nach vorne.",
-      "hinweis": "Ablauf: U2 – Sune – U2.",
       "vorbereitung": "U2",
       "nachbereitung": "U2",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U2" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U2" }
+      ],
       "loesung": "U2 R U R' U R U2 R' U2"
     },
     {
@@ -140,9 +181,13 @@
       "name": "Rechts richtig, gegen Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Kante sitzt richtig (rechts). Die drei anderen sind im Kreis vertauscht; es gehört vorne nach hinten, hinten nach links, links nach vorne.",
-      "hinweis": "Ablauf: U – Sune – U'.",
       "vorbereitung": "U",
       "nachbereitung": "U'",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U'" }
+      ],
       "loesung": "U R U R' U R U2 R' U'"
     },
     {
@@ -150,9 +195,13 @@
       "name": "Hinten richtig, mit Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Kante sitzt richtig (hinten). Die drei anderen sind im Kreis vertauscht; es gehört vorne nach links, links nach rechts, rechts nach vorne.",
-      "hinweis": "Ablauf: U' – Sune – U'.",
       "vorbereitung": "U'",
       "nachbereitung": "U'",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U'" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U'" }
+      ],
       "loesung": "U' R U R' U R U2 R' U'"
     },
     {
@@ -160,8 +209,11 @@
       "name": "Rechts richtig, mit Uhrzeiger",
       "gruppe": "Dreierkreis",
       "erkennung": "Genau eine Kante sitzt richtig (rechts). Die drei anderen sind im Kreis vertauscht; es gehört vorne nach links, links nach hinten, hinten nach vorne.",
-      "hinweis": "Ablauf: U2 – Sune.",
       "vorbereitung": "U2",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U2" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" }
+      ],
       "loesung": "U2 R U R' U R U2 R'"
     },
     {
@@ -169,8 +221,13 @@
       "name": "Doppeltausch, vorne–rechts",
       "gruppe": "Doppeltausch",
       "erkennung": "Zwei Paare sind vertauscht: vorne mit rechts und hinten mit links. Keine sitzt richtig.",
-      "hinweis": "Ablauf: Sune – U' – Sune – U.",
       "nachbereitung": "U",
+      "teile": [
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "zwischen", "zuege": "U'" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U" }
+      ],
       "loesung": "R U R' U R U2 R' U' R U R' U R U2 R' U"
     },
     {
@@ -178,8 +235,13 @@
       "name": "Doppeltausch über Kreuz",
       "gruppe": "Doppeltausch",
       "erkennung": "Zwei Paare sind vertauscht: vorne mit hinten und rechts mit links. Keine sitzt richtig.",
-      "hinweis": "Ablauf: Sune – U – Sune – U'.",
       "nachbereitung": "U'",
+      "teile": [
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "zwischen", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U'" }
+      ],
       "loesung": "R U R' U R U2 R' U R U R' U R U2 R' U'"
     },
     {
@@ -187,46 +249,65 @@
       "name": "Doppeltausch, vorne–links",
       "gruppe": "Doppeltausch",
       "erkennung": "Zwei Paare sind vertauscht: vorne mit links und rechts mit hinten. Keine sitzt richtig.",
-      "hinweis": "Ablauf: Sune – U' – Sune – U'.",
       "nachbereitung": "U'",
+      "teile": [
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "zwischen", "zuege": "U'" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U'" }
+      ],
       "loesung": "R U R' U R U2 R' U' R U R' U R U2 R' U'"
     },
     {
       "id": "k-1302",
-      "name": "Viererkreis gemischt 1",
+      "name": "Viererkreis: vorne → rechts → links",
       "gruppe": "Viererkreis",
       "erkennung": "Keine Kante sitzt richtig. Alle vier sind im Kreis vertauscht; es gehört vorne nach rechts, rechts nach links, links nach hinten, hinten nach vorne.",
-      "hinweis": "Ablauf: Sune – U'.",
       "nachbereitung": "U'",
+      "teile": [
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U'" }
+      ],
       "loesung": "R U R' U R U2 R' U'"
     },
     {
       "id": "k-2031",
-      "name": "Viererkreis gemischt 2",
+      "name": "Viererkreis: vorne → hinten → links",
       "gruppe": "Viererkreis",
       "erkennung": "Keine Kante sitzt richtig. Alle vier sind im Kreis vertauscht; es gehört vorne nach hinten, hinten nach links, links nach rechts, rechts nach vorne.",
-      "hinweis": "Ablauf: U2 – Sune – U.",
       "vorbereitung": "U2",
       "nachbereitung": "U",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U2" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U" }
+      ],
       "loesung": "U2 R U R' U R U2 R' U"
     },
     {
       "id": "k-2310",
-      "name": "Viererkreis gemischt 3",
+      "name": "Viererkreis: vorne → hinten → rechts",
       "gruppe": "Viererkreis",
       "erkennung": "Keine Kante sitzt richtig. Alle vier sind im Kreis vertauscht; es gehört vorne nach hinten, hinten nach rechts, rechts nach links, links nach vorne.",
-      "hinweis": "Ablauf: U' – Sune.",
       "vorbereitung": "U'",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U'" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" }
+      ],
       "loesung": "U' R U R' U R U2 R'"
     },
     {
       "id": "k-3201",
-      "name": "Viererkreis gemischt 4",
+      "name": "Viererkreis: vorne → links → rechts",
       "gruppe": "Viererkreis",
       "erkennung": "Keine Kante sitzt richtig. Alle vier sind im Kreis vertauscht; es gehört vorne nach links, links nach rechts, rechts nach hinten, hinten nach vorne.",
-      "hinweis": "Ablauf: U – Sune – U2.",
       "vorbereitung": "U",
       "nachbereitung": "U2",
+      "teile": [
+        { "art": "vorbereitung", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U2" }
+      ],
       "loesung": "U R U R' U R U2 R' U2"
     },
     {
@@ -234,7 +315,11 @@
       "name": "Viererkreis gegen Uhrzeiger",
       "gruppe": "Viererkreis",
       "erkennung": "Keine Kante sitzt richtig. Alle vier sind im Kreis vertauscht; es gehört vorne nach rechts, rechts nach hinten, hinten nach links, links nach vorne.",
-      "hinweis": "Ablauf: Sune – U – Sune.",
+      "teile": [
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "zwischen", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" }
+      ],
       "loesung": "R U R' U R U2 R' U R U R' U R U2 R'"
     },
     {
@@ -242,8 +327,13 @@
       "name": "Viererkreis mit Uhrzeiger",
       "gruppe": "Viererkreis",
       "erkennung": "Keine Kante sitzt richtig. Alle vier sind im Kreis vertauscht; es gehört vorne nach links, links nach hinten, hinten nach rechts, rechts nach vorne.",
-      "hinweis": "Ablauf: Sune – U – Sune – U2.",
       "nachbereitung": "U2",
+      "teile": [
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "zwischen", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R U R' U R U2 R'" },
+        { "art": "nachbereitung", "zuege": "U2" }
+      ],
       "loesung": "R U R' U R U2 R' U R U R' U R U2 R' U2"
     },
     {

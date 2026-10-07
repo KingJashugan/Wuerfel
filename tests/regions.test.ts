@@ -6,6 +6,8 @@ import {
   invert,
   parseMoves,
   regionsSatisfied,
+  stateKey,
+  upperLayerInfo,
   withOrientation,
 } from '../src/cube/adapter';
 import { CUBE_REGIONS, type CubeRegion } from '../src/cube/regions';
@@ -281,5 +283,57 @@ describe('Gegenprobe: kpuzzle-Bereiche gegen Facelets (state.ts)', () => {
     const solved = applyAlgorithm(CubeState.solved(), 'z2');
     for (const r of CUBE_REGIONS) expect(faceletRegion(solved, r)).toBe(true);
     expect(faceletRegion(applyAlgorithm(solved, 'F'), 'kreuz-unten')).toBe(false);
+  });
+});
+
+describe('stateKey', () => {
+  it('gleicher Zustand gleicher Schluessel, auch bei anderer Schreibweise und Rotation', async () => {
+    expect(await stateKey('z2', 'R2')).toBe(await stateKey('z2', "R R"));
+    expect(await stateKey('z2', 'U')).toBe(await stateKey('z2 U', ''));
+    expect(await stateKey('z2', 'U y')).toBe(await stateKey('z2', 'U'));
+    expect(await stateKey('z2', '')).toBe(await stateKey('', ''));
+  });
+  it('verschiedene Zustaende haben verschiedene Schluessel', async () => {
+    expect(await stateKey('z2', 'U')).not.toBe(await stateKey('z2', ''));
+    expect(await stateKey('z2', 'U')).not.toBe(await stateKey('z2', "U'"));
+    expect(await stateKey('z2', SUNE)).not.toBe(await stateKey('z2', "U"));
+  });
+});
+
+describe('upperLayerInfo', () => {
+  it('geloester Wuerfel: Identitaet, alles orientiert', async () => {
+    expect(await upperLayerInfo('z2')).toEqual({
+      edgePermutation: [0, 1, 2, 3],
+      edgeOrientation: [0, 0, 0, 0],
+      cornerPermutation: [0, 1, 2, 3],
+      cornerOrientation: [0, 0, 0, 0],
+    });
+  });
+  it('U zyklisch: Kanten und Ecken um einen Platz verschoben', async () => {
+    const u = await upperLayerInfo('z2', 'U');
+    expect(u.edgePermutation).toEqual([1, 2, 3, 0]);
+    expect(u.cornerPermutation).toEqual([1, 2, 3, 0]);
+    const ui = await upperLayerInfo('z2', "U'");
+    expect(ui.edgePermutation).toEqual([3, 0, 1, 2]);
+    expect((await upperLayerInfo('z2', 'U2')).edgePermutation).toEqual([2, 3, 0, 1]);
+  });
+  it('untere Teile auf oberen Plaetzen werden mit -1 gemeldet', async () => {
+    const f = await upperLayerInfo('z2', 'F');
+    expect(f.edgePermutation).toContain(-1);
+    expect(f.cornerPermutation).toContain(-1);
+  });
+  it('Sune dreht Ecken oben (Orientierung nicht alle 0, Summe durch 3 teilbar), Kanten bleiben orientiert', async () => {
+    const s = await upperLayerInfo(caseSetup(SUNE));
+    expect(s.cornerOrientation.some((o) => o !== 0)).toBe(true);
+    expect(s.cornerOrientation.reduce((a, b) => a + b, 0) % 3).toBe(0);
+    expect(s.edgeOrientation).toEqual([0, 0, 0, 0]);
+    expect(s.edgePermutation).not.toEqual([0, 1, 2, 3]);
+  });
+  it('Kantenflip oben: Fall mit nicht orientierten Kanten (Gegenprobe zu FRU)', async () => {
+    const f = await upperLayerInfo(caseSetup(FRU));
+    expect(f.edgeOrientation.filter((o) => o !== 0)).toHaveLength(2);
+  });
+  it('ist rotationsfest (Wuerfeldrehung am Ende)', async () => {
+    expect(await upperLayerInfo('z2', 'U x')).toEqual(await upperLayerInfo('z2', 'U'));
   });
 });
