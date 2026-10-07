@@ -4,7 +4,7 @@
   "phase": 4,
   "titel": "Gelbes Kreuz",
   "ziel": {
-    "text": "Auf der oberen Fläche bilden die vier gelben Kanten ein Kreuz: Alle vier zeigen mit Gelb nach oben. Dass die Seitenfarben noch nicht zu den Mitten passen, ist egal; die ersten beiden Schichten bleiben ganz. Von oben gesehen siehst du zuerst nur einen Punkt (kein gelbes Kantenstück oben), einen Winkel (zwei benachbarte, L-Form), eine Linie (zwei gegenüberliegende) oder schon das Kreuz.",
+    "text": "Auf der oberen Fläche bilden die vier gelben Kanten ein Kreuz: Alle vier zeigen mit Gelb nach oben. Die Seitenfarben müssen noch nicht passen; die ersten beiden Schichten bleiben ganz.",
     "erhalten": ["zweite-schicht"],
     "erreicht": ["gelbes-kreuz"],
     "aufTolerant": false
@@ -43,8 +43,52 @@
   },
   "faelle": [
     {
+      "id": "punkt",
+      "name": "Punkt",
+      "gruppe": "Punkt",
+      "erkennung": "Nur der gelbe Mittelstein ist oben gelb, keine der vier Kanten.",
+      "hinweis": "Algorithmus, U2, Algorithmus, U2, Algorithmus.",
+      "loesung": "F R U R' U' F' U2 F R U R' U' F' U2 F R U R' U' F'"
+    },
+    {
+      "id": "winkel-hinten-links",
+      "name": "Winkel hinten links",
+      "gruppe": "Winkel",
+      "erkennung": "Genau zwei benachbarte gelbe Kanten zeigen Gelb nach oben und bilden eine L-Form: hier hinten und links.",
+      "hinweis": "Merke: L-Form nach hinten links drehen, dann Algorithmus, U2, Algorithmus.",
+      "loesung": "F R U R' U' F' U2 F R U R' U' F'"
+    },
+    {
+      "id": "winkel-vorne-rechts",
+      "name": "Winkel vorne rechts",
+      "gruppe": "Winkel",
+      "erkennung": "Die L-Form aus gelben Kanten liegt vorne und rechts.",
+      "hinweis": "U2 bringt die L-Form nach hinten links; dann Algorithmus, U2, Algorithmus.",
+      "vorbereitung": "U2",
+      "loesung": "U2 F R U R' U' F' U2 F R U R' U' F'"
+    },
+    {
+      "id": "winkel-vorne-links",
+      "name": "Winkel vorne links",
+      "gruppe": "Winkel",
+      "erkennung": "Die L-Form aus gelben Kanten liegt vorne und links.",
+      "hinweis": "U bringt die L-Form nach hinten links; dann Algorithmus, U2, Algorithmus.",
+      "vorbereitung": "U",
+      "loesung": "U F R U R' U' F' U2 F R U R' U' F'"
+    },
+    {
+      "id": "winkel-hinten-rechts",
+      "name": "Winkel hinten rechts",
+      "gruppe": "Winkel",
+      "erkennung": "Die L-Form aus gelben Kanten liegt hinten und rechts.",
+      "hinweis": "U' bringt die L-Form nach hinten links; dann Algorithmus, U2, Algorithmus.",
+      "vorbereitung": "U'",
+      "loesung": "U' F R U R' U' F' U2 F R U R' U' F'"
+    },
+    {
       "id": "linie",
       "name": "Linie (waagerecht)",
+      "gruppe": "Linie",
       "erkennung": "Von oben siehst du eine gelbe Linie von links nach rechts: der Mittelstein und die Kanten links und rechts zeigen Gelb nach oben.",
       "hinweis": "Einmal der Algorithmus.",
       "loesung": "F R U R' U' F'"
@@ -52,53 +96,17 @@
     {
       "id": "linie-senkrecht",
       "name": "Linie (senkrecht)",
+      "gruppe": "Linie",
       "erkennung": "Die gelbe Linie läuft von vorne nach hinten statt von links nach rechts.",
       "hinweis": "U drehen, dann der Algorithmus.",
       "vorbereitung": "U",
       "loesung": "U F R U R' U' F'"
     },
     {
-      "id": "winkel-hinten-links",
-      "name": "Winkel hinten links",
-      "erkennung": "Genau zwei benachbarte gelbe Kanten zeigen oben Gelb und bilden ein L. Hier sind es die Kanten hinten und links.",
-      "hinweis": "Merke: L nach hinten links drehen, dann den Algorithmus 2-mal hintereinander.",
-      "loesung": "F R U R' U' F' F R U R' U' F'"
-    },
-    {
-      "id": "winkel-vorne-rechts",
-      "name": "Winkel vorne rechts",
-      "erkennung": "Das L aus gelben Kanten liegt vorne und rechts.",
-      "hinweis": "U2 bringt das L nach hinten links, dann 2-mal der Algorithmus.",
-      "vorbereitung": "U2",
-      "loesung": "U2 F R U R' U' F' F R U R' U' F'"
-    },
-    {
-      "id": "winkel-vorne-links",
-      "name": "Winkel vorne links",
-      "erkennung": "Das L aus gelben Kanten liegt vorne und links.",
-      "hinweis": "U bringt das L nach hinten links, dann 2-mal der Algorithmus.",
-      "vorbereitung": "U",
-      "loesung": "U F R U R' U' F' F R U R' U' F'"
-    },
-    {
-      "id": "winkel-hinten-rechts",
-      "name": "Winkel hinten rechts",
-      "erkennung": "Das L aus gelben Kanten liegt hinten und rechts.",
-      "hinweis": "U' bringt das L nach hinten links, dann 2-mal der Algorithmus.",
-      "vorbereitung": "U'",
-      "loesung": "U' F R U R' U' F' F R U R' U' F'"
-    },
-    {
-      "id": "punkt",
-      "name": "Punkt",
-      "erkennung": "Nur der gelbe Mittelstein ist oben gelb, keine der vier Kanten.",
-      "hinweis": "Algorithmus 2-mal, dann U, dann noch einmal.",
-      "loesung": "F R U R' U' F' F R U R' U' F' U F R U R' U' F'"
-    },
-    {
       "id": "linie-ungeloest-oben",
       "name": "Linie, Ecken oben durcheinander",
-      "erkennung": "Wie die waagerechte Linie. In der Praxis stehen die gelben Ecken dabei noch falsch und falsch gedreht; das stört hier nicht. Du achtest nur auf die gelben Kanten und wendest den Algorithmus an.",
+      "gruppe": "Linie",
+      "erkennung": "Wie die waagerechte Linie. In der Praxis stehen die gelben Ecken noch falsch; das stört hier nicht. Achte nur auf die gelben Kanten.",
       "hinweis": "Ecken oben sind noch egal.",
       "loesung": "F R U R' U' F'",
       "setup": "z2 R U R' U R U2 R' F U R U' R' F'"

@@ -4,12 +4,12 @@
   "phase": 2,
   "titel": "Weiße Ecken",
   "ziel": {
-    "text": "Die vier weißen Ecken sitzen unten an ihrem Platz, mit Weiß nach unten. Zusammen mit dem Kreuz ist damit die ganze untere Schicht gelöst, und alle Seitenfarben passen zu den Mittelsteinen.",
+    "text": "Die vier weißen Ecken sitzen unten an ihrem Platz, mit Weiß nach unten. Zusammen mit dem Kreuz ist die untere Schicht gelöst, und alle Seitenfarben passen zu den Mittelsteinen.",
     "erhalten": ["kreuz-unten"],
     "erreicht": ["erste-schicht"],
     "aufTolerant": false
   },
-  "prinzip": "Eine Ecke ist ein Stein mit drei Farben. Dreh die obere Schicht (U), bis eine weiße Ecke oben genau über dem Platz steht, an den sie gehört; der Platz liegt direkt darunter. Dann wiederholst du einen kurzen Block, den Sexy Move: R U R' U'. Ein solcher kurzer Block, der immer wieder gebraucht und oft wiederholt wird, heißt Trigger. Wie oft du den Sexy Move wiederholst, hängt davon ab, wohin der weiße Aufkleber der Ecke zeigt (die Ecke steht oben vorne rechts): Zeigt Weiß nach rechts, wiederholst du 1-mal; zeigt Weiß nach oben, 3-mal; zeigt Weiß nach vorne, 5-mal. Sitzt die Ecke schon unten vorne rechts an ihrem Platz, ist aber verdreht, braucht es 2 oder 4 Wiederholungen. Nach 6 Wiederholungen wäre alles wieder wie am Anfang; hör also auf, sobald die Ecke unten richtig sitzt. Das Kreuz wird zwischendurch gestört, ist aber am Ende wieder vollständig. Die Beispiele belegen jede dieser Zuordnungen.",
+  "prinzip": "Eine Ecke ist ein Stein mit drei Farben. Dreh die obere Schicht (U), bis eine weiße Ecke oben genau über ihrem Platz steht; der Platz liegt direkt darunter, unten vorne rechts.\n\nDann wiederholst du den Sexy Move: R U R' U'. Ein kurzer Block, den man oft braucht und wiederholt, heißt Trigger; der Sexy Move ist der bekannteste.\n\nWie oft du ihn wiederholst, hängt davon ab, wohin der weiße Aufkleber der Ecke zeigt. Steht die Ecke oben vorne rechts: Weiß rechts = 1-mal, Weiß oben = 3-mal, Weiß vorne = 5-mal. Sitzt sie schon unten vorne rechts, ist aber verdreht: Weiß rechts = 2-mal, Weiß vorne = 4-mal.\n\nHör auf, sobald die Ecke unten richtig sitzt. Das Kreuz wird zwischendurch gestört, ist am Ende aber wieder vollständig.",
   "beispiele": [
     {
       "id": "weiss-rechts",
@@ -21,8 +21,8 @@
       ]
     },
     {
-      "id": "ecke-unten-verdreht-2",
-      "beschreibung": "Die weiße Ecke sitzt schon unten vorne rechts an ihrem Platz, ist aber verdreht. Zwei Wiederholungen des Sexy Move drehen sie zurecht.",
+      "id": "ecke-unten-weiss-rechts",
+      "beschreibung": "Die weiße Ecke sitzt schon unten vorne rechts, ist aber verdreht: Weiß zeigt nach rechts. Hier braucht es zwei Wiederholungen.",
       "setup": "U R U' R' U R U' R'",
       "loesung": "R U R' U' R U R' U'",
       "schritte": [
@@ -45,8 +45,8 @@
       ]
     },
     {
-      "id": "ecke-unten-verdreht-4",
-      "beschreibung": "Die weiße Ecke sitzt unten vorne rechts an ihrem Platz, ist aber anders herum verdreht als im Beispiel mit 2 Wiederholungen. Hier braucht es vier.",
+      "id": "ecke-unten-weiss-vorne",
+      "beschreibung": "Die weiße Ecke sitzt unten vorne rechts an ihrem Platz, ist aber verdreht: Weiß zeigt nach vorne. Hier braucht es vier Wiederholungen.",
       "setup": "R U R' U' R U R' U'",
       "loesung": "R U R' U' R U R' U' R U R' U' R U R' U'",
       "schritte": [

@@ -4,12 +4,12 @@
   "phase": 1,
   "titel": "Weißes Kreuz",
   "ziel": {
-    "text": "Die vier weißen Kanten bilden unten ein Kreuz um den weißen Mittelstein. Zusätzlich passt die zweite Farbe jeder Kante zum Mittelstein der Seitenfläche, an der sie liegt.",
+    "text": "Die vier weißen Kanten bilden unten ein Kreuz um den weißen Mittelstein. Die zweite Farbe jeder Kante passt dabei zum Mittelstein ihrer Seite.",
     "erhalten": [],
     "erreicht": ["kreuz-unten"],
     "aufTolerant": false
   },
-  "prinzip": "Zuerst ein paar Begriffe. Der Würfel besteht aus 26 sichtbaren Steinen: 6 Mittelsteine (eine Farbe; sie bewegen sich nie gegeneinander und legen die Farbe ihrer Seite fest), 12 Kanten (zwei Farben) und 8 Ecken (drei Farben). Eine Schicht ist eine Ebene aus neun Steinen, zum Beispiel die untere Schicht auf der weißen Seite. In dieser App liegt der Würfel immer so: Weiß unten, Grün vorne, Gelb oben. Das Kreuz ist das Plus-Muster aus dem weißen Mittelstein und den vier weißen Kanten. Es reicht nicht, dass Weiß unten ist: Die zweite Farbe jeder Kante muss auch zum Mittelstein ihrer Seite passen. Für das Kreuz gibt es keinen festen Algorithmus. Du suchst eine weiße Kante, überlegst, wo sie hinsoll, und bewegst sie mit wenigen Drehungen dorthin, ohne bereits eingebaute Kanten zu zerstören. Faustregel: Hol die Kante in die obere Schicht, dreh sie dort mit U über ihren Platz und dreh dann die Seitenfläche, bis sie unten einrastet. Die Beispiele zeigen, wie ein verstelltes Kreuz mit einigen Drehungen wieder zusammenkommt; die Lösungen sind Vorschläge, andere kurze Wege sind genauso richtig.",
+  "prinzip": "Begriffe: Der Würfel hat 6 Mittelsteine (eine Farbe, sie legen die Farbe ihrer Seite fest), 12 Kanten (zwei Farben) und 8 Ecken (drei Farben). Eine Schicht ist eine Ebene aus neun Steinen, zum Beispiel die untere Schicht auf der weißen Seite.\n\nLage in dieser App: Weiß unten, Grün vorne, Gelb oben. Das Kreuz ist das Plus-Muster aus dem weißen Mittelstein und den vier weißen Kanten. Weiß unten allein genügt nicht: Die zweite Farbe jeder Kante muss auch zum Mittelstein ihrer Seite passen.\n\nFür das Kreuz gibt es keinen festen Algorithmus. Suche eine weiße Kante, überlege, wo sie hinsoll, und bewege sie mit wenigen Drehungen dorthin, ohne eingebaute Kanten zu zerstören. Faustregel: Hol die Kante in die obere Schicht, dreh sie mit U über ihren Platz und dreh dann die Seitenfläche, bis sie unten einrastet.\n\nDie Beispiele zeigen verstellte Kreuze und einen Weg zurück; andere kurze Wege sind genauso richtig.",
   "beispiele": [
     {
       "id": "kante-oben",

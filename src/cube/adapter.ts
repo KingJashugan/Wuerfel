@@ -65,7 +65,6 @@ export async function statesEqual(setup: string, a: string, b: string): Promise<
   return pa.isIdentical(pb);
 }
 
-
 // ---------------------------------------------------------------------------
 // Orientierung (Weiss unten, Gruen vorne) und Faellepruefung
 // ---------------------------------------------------------------------------
@@ -94,14 +93,22 @@ const WHOLE_CUBE_ROTATIONS = ['', 'x', 'x2', "x'", 'z', "z'"].flatMap((a) => [''
  * - Kantenplaetze: UF UR UB UL DF DR DB DL FR FL BR BL; Eckenplaetze: UFR URB UBL ULF DRF DFL DLB DBR.
  * - Referenz = Standardmuster nach z2 (Teile 'wandern' mit, Orientierung bleibt 0). Der Vergleich
  *   erfolgt, nachdem eine ganze Wuerfeldrehung die Mitten wieder in Referenzlage gebracht hat.
+ *
+ * Referenz (Standardmuster nach z2) und Mitten-Referenz werden einmal berechnet; ein
+ * fehlgeschlagener Ladeversuch wird nicht gecacht.
  */
-/** Referenz (Standardmuster nach z2) und Mitten-Referenz, einmal berechnet. */
 let referencePromise: Promise<{ kpuzzle: KPuzzle; ref: KPattern; refCenters: readonly number[] }> | null = null;
 function reference() {
-  referencePromise ??= cube3x3x3.kpuzzle().then((kpuzzle) => {
-    const ref = kpuzzle.defaultPattern().applyAlg(new Alg(ORIENTATION_SETUP));
-    return { kpuzzle, ref, refCenters: ref.patternData['CENTERS']!.pieces };
-  });
+  referencePromise ??= cube3x3x3
+    .kpuzzle()
+    .then((kpuzzle) => {
+      const ref = kpuzzle.defaultPattern().applyAlg(new Alg(ORIENTATION_SETUP));
+      return { kpuzzle, ref, refCenters: ref.patternData['CENTERS']!.pieces };
+    })
+    .catch((e: unknown) => {
+      referencePromise = null;
+      throw e;
+    });
   return referencePromise;
 }
 

@@ -44,6 +44,10 @@ export interface Fall {
    * `loesung` sein (Test). Die Tests pruefen immer die vollstaendige `loesung`.
    */
   vorbereitung?: string;
+  /** Gegenstueck zu `vorbereitung`: Zuege am Ende von `loesung` (z. B. abschliessendes U). Muss das Ende der `loesung` sein (Test). */
+  nachbereitung?: string;
+  /** Kurzes Label (nicht leer, hoechstens 30 Zeichen) zur Gruppierung der Faelle in der Oberflaeche, z. B. "Tausch". */
+  gruppe?: string;
   /**
    * Vollstaendige Zugfolge, die den Fall loest. Sie muss `algorithmus.zuege` (oder eine
    * deklarierte Variante) als zusammenhaengende Teilfolge enthalten. Wiederholungen werden mit
@@ -64,6 +68,10 @@ export interface Fall {
 export interface Variante {
   name: string;
   zuege: string;
+  /** Wie am Algorithmus; Trigger muessen zusammengesetzt die Zuege der Variante ergeben. */
+  trigger?: Trigger[];
+  /** Wie am Algorithmus; muessen bei der Zuganzahl der Variante enden. */
+  schritte?: Schritt[];
 }
 
 export interface Algorithmus {
@@ -135,6 +143,7 @@ export type ValidationResult<T> = { ok: true; value: T } | { ok: false; fehler: 
 
 type Obj = Record<string, unknown>;
 
+const MAX_GRUPPE = 30;
 const ID_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const FILE_RE = /^[A-Za-z0-9_-]+(\/[A-Za-z0-9_-]+)*\.json$/;
 
@@ -244,6 +253,17 @@ function schritte(c: Ctx, x: unknown, path: string, minLen: number): void {
   });
 }
 
+function triggerListe(c: Ctx, x: unknown, path: string): void {
+  arr(c, x, path, 0)?.forEach((t, i) => {
+    const p = `${path}[${i}]`;
+    const to = obj(c, t, p, ['name', 'zuege', 'erklaerung'], ['name', 'zuege', 'erklaerung']);
+    if (!to) return;
+    str(c, to['name'], `${p}.name`);
+    str(c, to['zuege'], `${p}.zuege`);
+    str(c, to['erklaerung'], `${p}.erklaerung`);
+  });
+}
+
 function algorithmisch(c: Ctx, o: Obj): void {
   int(c, o['phase'], 'phase', 3, 7);
   ziel(c, o['ziel'], 'ziel');
@@ -261,20 +281,15 @@ function algorithmisch(c: Ctx, o: Obj): void {
     if ('varianten' in a) {
       arr(c, a['varianten'], 'algorithmus.varianten', 1)?.forEach((v, i) => {
         const p = `algorithmus.varianten[${i}]`;
-        const vo = obj(c, v, p, ['name', 'zuege'], ['name', 'zuege']);
+        const vo = obj(c, v, p, ['name', 'zuege', 'trigger', 'schritte'], ['name', 'zuege']);
         if (!vo) return;
         str(c, vo['name'], `${p}.name`);
         str(c, vo['zuege'], `${p}.zuege`);
+        if ('trigger' in vo) triggerListe(c, vo['trigger'], `${p}.trigger`);
+        if ('schritte' in vo) schritte(c, vo['schritte'], `${p}.schritte`, 1);
       });
     }
-    arr(c, a['trigger'], 'algorithmus.trigger', 0)?.forEach((t, i) => {
-      const p = `algorithmus.trigger[${i}]`;
-      const to = obj(c, t, p, ['name', 'zuege', 'erklaerung'], ['name', 'zuege', 'erklaerung']);
-      if (!to) return;
-      str(c, to['name'], `${p}.name`);
-      str(c, to['zuege'], `${p}.zuege`);
-      str(c, to['erklaerung'], `${p}.erklaerung`);
-    });
+    triggerListe(c, a['trigger'], 'algorithmus.trigger');
     schritte(c, a['schritte'], 'algorithmus.schritte', 1);
   }
   const ids: Array<string | null> = [];
@@ -284,7 +299,7 @@ function algorithmisch(c: Ctx, o: Obj): void {
       c,
       f,
       p,
-      ['id', 'name', 'erkennung', 'hinweis', 'vorbereitung', 'loesung', 'setup'],
+      ['id', 'name', 'erkennung', 'hinweis', 'vorbereitung', 'nachbereitung', 'gruppe', 'loesung', 'setup'],
       ['id', 'name', 'erkennung', 'loesung'],
     );
     if (!fo) return;
@@ -292,7 +307,11 @@ function algorithmisch(c: Ctx, o: Obj): void {
     str(c, fo['name'], `${p}.name`);
     str(c, fo['erkennung'], `${p}.erkennung`);
     str(c, fo['loesung'], `${p}.loesung`);
-    for (const k of ['hinweis', 'vorbereitung', 'setup']) if (k in fo) str(c, fo[k], `${p}.${k}`);
+    for (const k of ['hinweis', 'vorbereitung', 'nachbereitung', 'setup']) if (k in fo) str(c, fo[k], `${p}.${k}`);
+    if ('gruppe' in fo) {
+      const g = str(c, fo['gruppe'], `${p}.gruppe`);
+      if (g !== null && g.length > MAX_GRUPPE) c.err(`${p}.gruppe`, `hoechstens ${MAX_GRUPPE} Zeichen erlaubt`);
+    }
   });
   uniqueIds(c, ids, 'faelle');
 }

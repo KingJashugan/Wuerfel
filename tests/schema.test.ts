@@ -223,3 +223,37 @@ describe('validateEntry (neue Felder)', () => {
     expect(validateEntry(e).ok).toBe(false);
   });
 });
+
+describe('validateEntry (nachbereitung, gruppe, Variante mit Trigger/Schritten)', () => {
+  it('nachbereitung ist optional und nicht leer', () => {
+    const e = goodAlgEntry();
+    Object.assign(e.faelle[0]!, { nachbereitung: 'U2' });
+    expect(validateEntry(e).ok).toBe(true);
+    Object.assign(e.faelle[0]!, { nachbereitung: ' ' });
+    expect(validateEntry(e).ok).toBe(false);
+  });
+  it('gruppe: nicht leer, hoechstens 30 Zeichen', () => {
+    const e = goodAlgEntry();
+    Object.assign(e.faelle[0]!, { gruppe: 'Tausch' });
+    expect(validateEntry(e).ok).toBe(true);
+    Object.assign(e.faelle[0]!, { gruppe: 'x'.repeat(30) });
+    expect(validateEntry(e).ok).toBe(true);
+    Object.assign(e.faelle[0]!, { gruppe: 'x'.repeat(31) });
+    expect(fehler(validateEntry(e)).join('\n')).toMatch(/gruppe/);
+    Object.assign(e.faelle[0]!, { gruppe: '' });
+    expect(validateEntry(e).ok).toBe(false);
+  });
+  it('Variante darf trigger und schritte haben, mit denselben Regeln', () => {
+    const mk = (extra: Record<string, unknown>) => {
+      const e = goodAlgEntry();
+      Object.assign(e.algorithmus, { varianten: [{ name: 'links', zuege: "L' U' L", ...extra }] });
+      return validateEntry(e);
+    };
+    expect(mk({}).ok).toBe(true);
+    expect(mk({ trigger: [{ name: 't', zuege: "L' U'", erklaerung: 'e' }], schritte: [{ bereich: { von: 0, bis: 3 }, text: 't' }] }).ok).toBe(true);
+    expect(mk({ schritte: [{ bereich: { von: 1, bis: 3 }, text: 't' }] }).ok).toBe(false);
+    expect(mk({ schritte: [] }).ok).toBe(false);
+    expect(mk({ trigger: [{ name: 't', zuege: "L'" }] }).ok).toBe(false);
+    expect(mk({ unbekannt: 1 }).ok).toBe(false);
+  });
+});
