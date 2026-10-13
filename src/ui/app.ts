@@ -6,6 +6,7 @@
 import { el, link } from './dom';
 import { homeHref, parseHash } from './router';
 import type { Route } from './router';
+import { quizView } from './quiz-view';
 import { caseView, homeView, phaseView } from './views';
 import type { View } from './views';
 
@@ -30,6 +31,9 @@ function build(route: Route, page: HTMLElement): View {
         break;
       case 'case':
         view = caseView(page, route.nr, route.id);
+        break;
+      case 'quiz':
+        view = quizView(page, route.nr);
         break;
       case 'notfound':
         break;
