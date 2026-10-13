@@ -44,6 +44,7 @@
       }
     ]
   },
+  "vollstaendigkeit": "eckenorientierung-oben",
   "faelle": [
     {
       "id": "zwei-ecken-rechts",
@@ -59,6 +60,21 @@
         { "art": "nachbereitung", "zuege": "U'" }
       ],
       "loesung": "(R' D' R D)2 U (R' D' R D)4 U'"
+    },
+    {
+      "id": "zwei-ecken-vorne-hinten",
+      "name": "Zwei Ecken, Gelb nach vorne und hinten",
+      "gruppe": "Zwei Ecken",
+      "erkennung": "Die Ecken vorne rechts und hinten rechts sind verdreht, aber andersherum als im Fall davor: Vorne rechts zeigt Gelb nach vorne, hinten rechts nach hinten. Vorne rechts: 4 Durchgänge. Dann U: Gelb der zweiten Ecke zeigt nun nach rechts, also 2 Durchgänge. Schließe mit U'.",
+      "hinweis": "4 Durchgänge, U, 2 Durchgänge, U'.",
+      "nachbereitung": "U'",
+      "teile": [
+        { "art": "algorithmus", "zuege": "R' D' R D", "durchgaenge": 4 },
+        { "art": "zwischen", "zuege": "U" },
+        { "art": "algorithmus", "zuege": "R' D' R D", "durchgaenge": 2 },
+        { "art": "nachbereitung", "zuege": "U'" }
+      ],
+      "loesung": "(R' D' R D)4 U (R' D' R D)2 U'"
     },
     {
       "id": "zwei-ecken-diagonal",

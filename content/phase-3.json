@@ -16,7 +16,7 @@
       {
         "name": "Anti-Sexy-Move",
         "zuege": "U R U' R'",
-        "erklaerung": "Der Sexy Move R U R' U' rückwärts gelesen (Umkehrung der Zugfolge). Er bereitet den Platz vorne rechts vor, an den die Kante gehört."
+        "erklaerung": "Die Umkehrung des Sexy Move R U R' U': Die Züge laufen in umgekehrter Reihenfolge, und jeder Zug dreht in die Gegenrichtung. Er bereitet den Platz vorne rechts vor, an den die Kante gehört."
       },
       {
         "name": "Vorderseiten-Trigger",
@@ -81,7 +81,7 @@
       "id": "kante-rechts-ungeloest-oben",
       "name": "Kante nach rechts, oben unordentlich",
       "gruppe": "Einsetzen",
-      "erkennung": "In der Praxis fehlt unten nur noch die Kante vorne rechts, und oben liegt alles durcheinander. Das stört nicht: Such die passende Kante in der gelben Schicht und setze sie wie im ersten Fall ein.",
+      "erkennung": "In der Praxis sind die untere Schicht und die anderen drei Kanten der mittleren Schicht schon gelöst, nur die Kante vorne rechts fehlt noch, und oben liegt alles durcheinander. Das stört nicht: Such die passende Kante in der gelben Schicht und setze sie wie im ersten Fall ein.",
       "hinweis": "Die obere Schicht darf unordentlich bleiben.",
       "loesung": "U R U' R' U' F' U F",
       "setup": "z2 R U R' U R U2 R' F' U' F U R U R' U'"

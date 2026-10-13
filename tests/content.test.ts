@@ -307,6 +307,20 @@ const permutationsOf4 = (): number[][] => {
   return out;
 };
 
+/** Kleinste Drehung einer Ziffernfolge: macht Eckenmuster unabhaengig von der Drehung der oberen Schicht (U). */
+const canonicalRotation = (s: string): string =>
+  [...s].map((_, i) => s.slice(i) + s.slice(0, i)).reduce((a, b) => (b < a ? b : a));
+
+/** Alle Eckendreh-Muster oben (Summe durch 3 teilbar, nicht geloest) bis auf Drehung: es sind genau 7. */
+const eckenMuster = (): string[] => {
+  const out = new Set<string>();
+  for (let n = 1; n < 81; n++) {
+    const digits = n.toString(3).padStart(4, '0');
+    if ([...digits].reduce((a, d) => a + Number(d), 0) % 3 === 0) out.add(canonicalRotation(digits));
+  }
+  return [...out];
+};
+
 /** Namen der Lagen des gelben Musters oben; Schluessel = Orientierung der oberen Kanten (1 = Gelb zeigt nicht nach oben). */
 const GELBE_LAGEN: Readonly<Record<string, string>> = {
   '1111': 'Punkt',
@@ -333,6 +347,12 @@ async function checkVollstaendigkeit(e: AlgorithmischerEintrag, setups: Readonly
   } else if (e.vollstaendigkeit === 'eckenpermutation-oben-gerade') {
     const have = new Set(infos.filter((i) => !i.cornerPermutation.includes(-1)).map((i) => i.cornerPermutation.join('')));
     for (const p of permutationsOf4()) if (isEven(p) && p.join('') !== '0123' && !have.has(p.join(''))) missing.push(p.join(''));
+  } else if (e.vollstaendigkeit === 'eckenorientierung-oben') {
+    // Nur Faelle mit allen oberen Ecken am richtigen Platz; Muster gelten bis auf Drehung der oberen Schicht.
+    const have = new Set(
+      infos.filter((i) => i.cornerPermutation.join('') === '0123').map((i) => canonicalRotation(i.cornerOrientation.join(''))),
+    );
+    for (const pattern of eckenMuster()) if (!have.has(pattern)) missing.push(pattern);
   } else {
     const have = new Set(infos.filter((i) => !i.edgePermutation.includes(-1)).map((i) => i.edgeOrientation.join('')));
     for (const [mask, name] of Object.entries(GELBE_LAGEN)) if (!have.has(mask)) missing.push(`${name} (${mask})`);
@@ -845,6 +865,7 @@ const PFLICHT_VOLLSTAENDIGKEIT: Readonly<Record<number, Vollstaendigkeit | undef
   4: 'gelbe-lagen',
   5: 'kantenpermutation-oben',
   6: 'eckenpermutation-oben-gerade',
+  7: 'eckenorientierung-oben',
 };
 
 describe('content/*.json', () => {
@@ -857,7 +878,7 @@ describe('content/*.json', () => {
   });
 
   it('Vollstaendigkeitspruefung schlaegt bei gekuerzten echten Phasen an und besteht mit allen Faellen', async () => {
-    for (const phase of [4, 5, 6]) {
+    for (const phase of [4, 5, 6, 7]) {
       const base = real.eintraege.find((x) => x.phase === phase);
       if (base?.typ !== 'algorithmisch') continue;
       const e: AlgorithmischerEintrag = { ...structuredClone(base), vollstaendigkeit: PFLICHT_VOLLSTAENDIGKEIT[phase] };
@@ -868,7 +889,7 @@ describe('content/*.json', () => {
     }
   });
 
-  it('Phase 4 bis 6 deklarieren ihre vollstaendigkeit', () => {
+  it('Phase 4 bis 7 deklarieren ihre vollstaendigkeit', () => {
     for (const e of real.eintraege) {
       if (e.typ === 'algorithmisch' && PFLICHT_VOLLSTAENDIGKEIT[e.phase]) {
         expect(e.vollstaendigkeit, `${e.id}: vollstaendigkeit`).toBe(PFLICHT_VOLLSTAENDIGKEIT[e.phase]);
