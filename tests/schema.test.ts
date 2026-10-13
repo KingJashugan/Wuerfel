@@ -352,7 +352,7 @@ describe('voraussetzungVon', () => {
 describe('vollstaendigkeit', () => {
   it('nur bekannte Werte', () => {
     const e = goodAlgEntry();
-    for (const v of ['kantenpermutation-oben', 'eckenpermutation-oben-gerade', 'gelbe-lagen']) {
+    for (const v of ['kantenpermutation-oben', 'eckenpermutation-oben-gerade', 'gelbe-lagen', 'eckenorientierung-oben']) {
       Object.assign(e, { vollstaendigkeit: v });
       expect(validateEntry(e).ok, v).toBe(true);
     }

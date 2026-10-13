@@ -19,7 +19,8 @@ import type {
 import { el, link, paragraphs } from './dom';
 import { activeMoveIndex, mountPlayer } from './player-view';
 import type { PlayerHandle } from './player-view';
-import { caseHref, homeHref, phaseHref } from './router';
+import { caseKey, progress } from './progress';
+import { caseHref, homeHref, phaseHref, quizHref } from './router';
 
 /** Eine gemountete Seite. `destroy` raeumt Player und Listener auf. */
 export interface View {
@@ -73,12 +74,44 @@ function heading(parent: HTMLElement, text: string): HTMLElement {
   return h;
 }
 
+/** Fallschlüssel (Phase/ID) aller Fälle bzw. Beispiele eines Eintrags. */
+function keysOf(e: Eintrag): string[] {
+  const ids = e.typ === 'algorithmisch' ? e.faelle.map((f) => f.id) : e.beispiele.map((b) => b.id);
+  return ids.map((id) => caseKey(e.phase, id));
+}
+
+const progressText = (done: number, total: number): string => `${done} von ${total} gelernt`;
+
+function progressBar(parent: HTMLElement, keys: string[], testid: string): void {
+  const done = progress.learnedCount(keys);
+  const wrap = el('div', 'progress', parent);
+  wrap.dataset['testid'] = testid;
+  const bar = el('progress', '', wrap);
+  bar.max = Math.max(keys.length, 1);
+  bar.value = done;
+  bar.setAttribute('aria-label', 'Lernfortschritt');
+  el('span', 'progress-text', wrap, progressText(done, keys.length));
+}
+
+/** Knopf „Als gelernt markieren“ (Ein/Aus, `aria-pressed`); der Zustand bleibt im Browser gespeichert. */
+function learnedToggle(parent: HTMLElement, key: string): void {
+  const b = el('button', 'toggle', parent, 'Als gelernt markieren');
+  b.type = 'button';
+  b.dataset['testid'] = 'learned-toggle';
+  const render = (): void => b.setAttribute('aria-pressed', String(progress.isLearned(key)));
+  b.addEventListener('click', () => {
+    progress.setLearned(key, !progress.isLearned(key));
+    render();
+  });
+  render();
+}
+
 // ---------------------------------------------------------------------------
 // Startseite
 // ---------------------------------------------------------------------------
 
 export function homeView(page: HTMLElement): View {
-  const { methode } = loadMethode();
+  const { methode, eintraege } = loadMethode();
   heading(page, 'Cube Trainer – Anfängermethode');
   el(
     'p',
@@ -86,6 +119,9 @@ export function homeView(page: HTMLElement): View {
     page,
     'Lerne den 3x3-Zauberwürfel Schritt für Schritt: die Anfängermethode in sieben Phasen, jede mit Erklärung und 3D-Würfel zum Nachvollziehen.',
   );
+  progressBar(page, eintraege.flatMap(keysOf), 'progress-total');
+  const quiz = link(page, quizHref(), 'Quiz: Fälle erkennen', 'primary');
+  quiz.dataset['testid'] = 'quiz-link';
   const intro = section(page, 'Orientierung und Notation');
   el('p', '', intro, methode.orientierung);
 
@@ -100,6 +136,11 @@ export function homeView(page: HTMLElement): View {
     const body = el('span', 'card-body', a);
     el('span', 'card-title', body, p.titel);
     el('span', 'card-sub', body, p.typ === 'algorithmisch' ? 'Mit Algorithmus' : 'Intuitiv, ohne festen Algorithmus');
+    const entry = findEintrag(methode, eintraege, p.nr);
+    if (entry) {
+      const keys = keysOf(entry);
+      el('span', 'card-sub', body, progressText(progress.learnedCount(keys), keys.length)).dataset['testid'] = `phase-progress-${p.nr}`;
+    }
   }
   return { title: 'Cube Trainer – Anfängermethode', destroy: NOOP };
 }
@@ -163,6 +204,10 @@ function caseCard(parent: HTMLElement, nr: number, id: string, name: string, lin
   const body = el('span', 'card-body', a);
   el('span', 'card-title', body, name);
   for (const l of lines) el('span', 'card-sub', body, l);
+  if (progress.isLearned(caseKey(nr, id))) {
+    a.classList.add('learned');
+    el('span', 'card-done', body, '✓ Gelernt');
+  }
 }
 
 export function phaseView(page: HTMLElement, nr: number): View | null {
@@ -172,6 +217,11 @@ export function phaseView(page: HTMLElement, nr: number): View | null {
   crumbs(page, [{ href: homeHref(), text: '← Alle Phasen' }]);
   heading(page, `Phase ${e.phase}: ${e.titel}`);
   el('p', 'badge', page, e.typ === 'algorithmisch' ? 'Mit Algorithmus' : 'Intuitiv, ohne festen Algorithmus');
+  progressBar(page, keysOf(e), 'progress-phase');
+  if (e.typ === 'algorithmisch') {
+    const quiz = link(page, quizHref(e.phase), 'Quiz zu dieser Phase', 'secondary');
+    quiz.dataset['testid'] = 'quiz-link';
+  }
 
   const ziel = section(page, 'Ziel');
   el('p', '', ziel, e.ziel.text);
@@ -297,6 +347,7 @@ function algorithmicCase(page: HTMLElement, e: AlgorithmischerEintrag, id: strin
   ]);
   heading(page, fall.name);
   if (fall.gruppe) el('p', 'badge', page, fall.gruppe);
+  learnedToggle(page, caseKey(e.phase, fall.id));
 
   const handle = mountPlayer(playerHost(page), { setup: fall.setup ?? caseSetup(fall.loesung), alg: fall.loesung });
 
@@ -329,6 +380,7 @@ function intuitiveCase(page: HTMLElement, e: IntuitiverEintrag, id: string): Vie
   ]);
   heading(page, `Beispiel ${index + 1}`);
   el('p', '', page, bsp.beschreibung);
+  learnedToggle(page, caseKey(e.phase, bsp.id));
 
   const steps: Array<{ li: HTMLElement; s: Schritt }> = [];
   const onState = (s: PlayerState): void => {

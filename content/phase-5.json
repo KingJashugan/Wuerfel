@@ -260,7 +260,7 @@
     },
     {
       "id": "k-1302",
-      "name": "Viererkreis: vorne → rechts → links",
+      "name": "Viererkreis: vorne → rechts → links → hinten",
       "gruppe": "Viererkreis",
       "erkennung": "Keine Kante sitzt richtig. Alle vier sind im Kreis vertauscht; es gehört vorne nach rechts, rechts nach links, links nach hinten, hinten nach vorne.",
       "nachbereitung": "U'",
@@ -272,7 +272,7 @@
     },
     {
       "id": "k-2031",
-      "name": "Viererkreis: vorne → hinten → links",
+      "name": "Viererkreis: vorne → hinten → links → rechts",
       "gruppe": "Viererkreis",
       "erkennung": "Keine Kante sitzt richtig. Alle vier sind im Kreis vertauscht; es gehört vorne nach hinten, hinten nach links, links nach rechts, rechts nach vorne.",
       "vorbereitung": "U2",
@@ -286,7 +286,7 @@
     },
     {
       "id": "k-2310",
-      "name": "Viererkreis: vorne → hinten → rechts",
+      "name": "Viererkreis: vorne → hinten → rechts → links",
       "gruppe": "Viererkreis",
       "erkennung": "Keine Kante sitzt richtig. Alle vier sind im Kreis vertauscht; es gehört vorne nach hinten, hinten nach rechts, rechts nach links, links nach vorne.",
       "vorbereitung": "U'",
@@ -298,7 +298,7 @@
     },
     {
       "id": "k-3201",
-      "name": "Viererkreis: vorne → links → rechts",
+      "name": "Viererkreis: vorne → links → rechts → hinten",
       "gruppe": "Viererkreis",
       "erkennung": "Keine Kante sitzt richtig. Alle vier sind im Kreis vertauscht; es gehört vorne nach links, links nach rechts, rechts nach hinten, hinten nach vorne.",
       "vorbereitung": "U",
@@ -312,7 +312,7 @@
     },
     {
       "id": "k-1230",
-      "name": "Viererkreis gegen Uhrzeiger",
+      "name": "Viererkreis: vorne → rechts → hinten → links (gegen Uhrzeiger)",
       "gruppe": "Viererkreis",
       "erkennung": "Keine Kante sitzt richtig. Alle vier sind im Kreis vertauscht; es gehört vorne nach rechts, rechts nach hinten, hinten nach links, links nach vorne.",
       "teile": [
@@ -324,7 +324,7 @@
     },
     {
       "id": "k-3012",
-      "name": "Viererkreis mit Uhrzeiger",
+      "name": "Viererkreis: vorne → links → hinten → rechts (mit Uhrzeiger)",
       "gruppe": "Viererkreis",
       "erkennung": "Keine Kante sitzt richtig. Alle vier sind im Kreis vertauscht; es gehört vorne nach links, links nach hinten, hinten nach rechts, rechts nach vorne.",
       "nachbereitung": "U2",

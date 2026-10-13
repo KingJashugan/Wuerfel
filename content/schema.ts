@@ -56,13 +56,20 @@ export interface Teil {
   durchgaenge?: number;
 }
 
-export const VOLLSTAENDIGKEIT = ['kantenpermutation-oben', 'eckenpermutation-oben-gerade', 'gelbe-lagen'] as const;
+export const VOLLSTAENDIGKEIT = [
+  'kantenpermutation-oben',
+  'eckenpermutation-oben-gerade',
+  'gelbe-lagen',
+  'eckenorientierung-oben',
+] as const;
 /**
  * Welche Vollstaendigkeit die Faelle eines Eintrags haben muessen (vom Test geprueft, ueber die
  * Ausgangszustaende der Faelle):
  * - kantenpermutation-oben: alle 23 Nicht-Identitaets-Permutationen der vier oberen Kanten (Phase 5)
  * - eckenpermutation-oben-gerade: alle 11 geraden Nicht-Identitaets-Permutationen der vier oberen Ecken (Phase 6)
  * - gelbe-lagen: alle 7 Nicht-Kreuz-Muster der gelben Kantenaufkleber oben: Punkt, 2 Linien, 4 Winkel (Phase 4)
+ * - eckenorientierung-oben: alle 7 Nicht-Identitaets-Muster der Eckendrehung oben bis auf Drehung der oberen
+ *   Schicht (U); die Ecken stehen dabei am richtigen Platz (Phase 7)
  */
 export type Vollstaendigkeit = (typeof VOLLSTAENDIGKEIT)[number];
 

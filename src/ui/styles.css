@@ -112,3 +112,46 @@ p { line-height: 1.5; overflow-wrap: anywhere; }
 .pager-link.next { text-align: right; }
 .pager-dir { font-size: 14px; color: #1a3f93; }
 .pager-name { font-weight: 600; overflow-wrap: anywhere; }
+
+/* ---- Lernfortschritt und Quiz ---- */
+.progress { display: flex; align-items: center; gap: 12px; margin: 8px 0 12px; }
+.progress progress { flex: 1 1 auto; min-width: 0; height: 12px; accent-color: #1b7f3b; }
+.progress-text { flex: none; font-size: 15px; color: #3d4859; }
+.card.learned { border-color: #1b7f3b; }
+.card-done { font-size: 14px; font-weight: 600; color: #14612c; }
+
+.primary, .secondary, .toggle, .option {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 8px 16px;
+  font: inherit; font-weight: 600; text-decoration: none; border-radius: 10px; cursor: pointer;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.primary { color: #fff; background: #2457c5; border: 0; }
+.primary:active { background: #1a3f93; }
+.secondary, .toggle, .option { color: #1a3f93; background: #fff; border: 2px solid #2457c5; }
+.toggle { margin: 4px 0 8px; }
+.toggle[aria-pressed="true"] { color: #fff; background: #1b7f3b; border-color: #1b7f3b; }
+.toggle[aria-pressed="true"]::before { content: '✓ '; white-space: pre; }
+.primary:focus-visible, .secondary:focus-visible, .toggle:focus-visible, .option:focus-visible, .chip:focus-visible {
+  outline: 3px solid #f2a900; outline-offset: 2px;
+}
+
+.filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.chip {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; color: #1a3f93; background: #fff;
+  border: 1px solid #cfd6e0; border-radius: 22px; text-decoration: none;
+}
+.chip[aria-current="page"] { color: #fff; background: #2457c5; border-color: #2457c5; }
+.score { min-height: 1.5em; margin: 8px 0; font-weight: 600; }
+.quiz-area { display: flex; flex-direction: column; gap: 12px; }
+.options { display: grid; grid-template-columns: 1fr; gap: 8px; }
+@media (min-width: 560px) { .options { grid-template-columns: 1fr 1fr; } }
+.option { text-align: center; overflow-wrap: anywhere; }
+.option:disabled { cursor: default; }
+.option.correct { color: #fff; background: #1b7f3b; border-color: #1b7f3b; }
+.option.wrong { color: #fff; background: #b3261e; border-color: #b3261e; }
+.feedback { min-width: 0; padding: 12px 16px; background: #fff; border-radius: 12px; }
+.feedback:empty { display: none; }
+.result { margin: 0 0 8px; font-weight: 700; }
+.result.ok { color: #14612c; }
+.result.bad { color: #9c1f19; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }

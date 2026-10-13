@@ -9,7 +9,7 @@
     "erreicht": ["erste-schicht"],
     "aufTolerant": false
   },
-  "prinzip": "Eine Ecke ist ein Stein mit drei Farben. Dreh die obere Schicht (U), bis eine weiße Ecke oben genau über ihrem Platz steht; der Platz liegt direkt darunter, unten vorne rechts.\n\nDann wiederholst du den Sexy Move: R U R' U'. Ein kurzer Block, den man oft braucht und wiederholt, heißt Trigger; der Sexy Move ist der bekannteste.\n\nWie oft du ihn wiederholst, hängt davon ab, wohin der weiße Aufkleber der Ecke zeigt. Steht die Ecke oben vorne rechts: Weiß rechts = 1-mal, Weiß oben = 3-mal, Weiß vorne = 5-mal. Sitzt sie schon unten vorne rechts, ist aber verdreht: Weiß rechts = 2-mal, Weiß vorne = 4-mal.\n\nHör auf, sobald die Ecke unten richtig sitzt. Das Kreuz wird zwischendurch gestört, ist am Ende aber wieder vollständig.",
+  "prinzip": "Eine Ecke ist ein Stein mit drei Farben. Dreh die obere Schicht (U), bis eine weiße Ecke oben genau über ihrem Platz steht; der Platz liegt direkt darunter, unten vorne rechts.\n\nDann wiederholst du den Sexy Move: R U R' U'. Ein kurzer Block, den man oft braucht und wiederholt, heißt Trigger; der Sexy Move ist der bekannteste.\n\nWie oft du ihn wiederholst, hängt davon ab, wohin der weiße Aufkleber der Ecke zeigt. Steht die Ecke oben vorne rechts: Weiß rechts = 1-mal, Weiß oben = 3-mal, Weiß vorne = 5-mal. Sitzt sie schon unten vorne rechts, ist aber verdreht: Weiß rechts = 2-mal, Weiß vorne = 4-mal.\n\nHör auf, sobald die Ecke unten richtig sitzt. Das Kreuz wird zwischendurch gestört, ist am Ende aber wieder vollständig.\n\nSteckt eine weiße Ecke unten am falschen Platz, zum Beispiel unten hinten rechts statt vorne rechts, hilft Wiederholen allein nicht: Hol die Ecken gezielt mit Drehungen der rechten Seite an ihren Platz (letztes Beispiel).",
   "beispiele": [
     {
       "id": "weiss-rechts",
@@ -72,6 +72,42 @@
         {
           "bereich": { "von": 16, "bis": 20 },
           "text": "5. Sexy Move: Die Ecke sitzt unten richtig."
+        }
+      ]
+    },
+    {
+      "id": "ecke-unten-falscher-platz",
+      "beschreibung": "Die weiße Ecke für unten vorne rechts steckt unten hinten rechts, Weiß zeigt nach rechts. Die weiße Ecke für unten hinten rechts liegt oben hinten links, Weiß zeigt nach links. Auf dem Platz unten vorne rechts sitzt dafür eine gelbe Ecke. Wiederholen bringt hier nichts: Fünf gezielte Züge setzen beide Ecken richtig ein.",
+      "setup": "R U' R2 U' R'",
+      "loesung": "R U R2 U R'",
+      "schritte": [
+        {
+          "bereich": {
+            "von": 0,
+            "bis": 2
+          },
+          "text": "R U: Die weiße Ecke von unten hinten rechts rückt an den Platz unten vorne rechts (noch verdreht). Die andere weiße Ecke steht danach oben hinten rechts."
+        },
+        {
+          "bereich": {
+            "von": 2,
+            "bis": 3
+          },
+          "text": "R2: Die beiden weißen Ecken tauschen den Platz: Die eine geht nach oben hinten rechts, die andere nach unten vorne rechts."
+        },
+        {
+          "bereich": {
+            "von": 3,
+            "bis": 4
+          },
+          "text": "U: Die obere weiße Ecke dreht nach oben vorne rechts."
+        },
+        {
+          "bereich": {
+            "von": 4,
+            "bis": 5
+          },
+          "text": "R': Beide Ecken landen an ihrem Platz: Die obere geht nach unten vorne rechts, die untere nach unten hinten rechts."
         }
       ]
     }
